@@ -1,17 +1,206 @@
-<h2>Rectangle Creator</h2>
-<p>Count: <input id="count" type="number" value="5"></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
-<script>
+<!--  -->
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
-}
+<!DOCTYPE html>
+<html lang="en">
 
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css">
+  <!-- <title>Document</title> -->
+</head>
 
-</script>
+<style>
+  * {
+    padding: 0;
+    margin: 0;
+  }
+
+  .all_btn {
+    background: transparent;
+    border: none;
+  }
+
+  body {
+    font-family: "inter";
+    color: #1E1E1E;
+    font-size: 14px;
+  }
+
+  .header {
+    display: flex;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    background-color: white;
+  }
+
+  .header_list {
+    width: 50%;
+    text-align: center;
+    padding: 10 0px;
+    border-bottom: 1px black solid;
+  }
+
+  .content1 {
+    padding: 5px 20px;
+    margin-top: 20px;
+    display: none;
+  }
+
+  #input {
+    outline: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 0;
+    border: #7F7979 solid 1.3px;
+  }
+
+  .btn {
+    outline: none;
+    background: #0A99FE;
+    border: none;
+    padding: 8px 14px;
+    color: white;
+  }
+
+  .ul {
+    list-style-type: decimal;
+    margin-left: 20px;
+    margin-top: 10px;
+    color: inherit;
+  }
+
+  .ul li:not(:first-child) {
+    margin-top: 4px;
+  }
+
+  .footer {
+    position: fixed;
+    background: white;
+    bottom: 0px;
+    padding: 15px 20px;
+    border-top: 1px #EBEBF2 solid;
+    width: 100%;
+
+  }
+
+  .footer div {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .content2 {
+    margin-top: 40px;
+  }
+
+  .content2 .refresh {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+  }
+
+  .comment_list {
+    border-top: #EBEBF2 1px solid;
+    padding: 5px 20px;
+
+  }
+
+  .comment_list div {
+    border-bottom: #EBEBF2 1px solid;
+  }
+
+  .comment_list p {
+    margin-top: 5px;
+
+  }
+
+  .add {
+    color: #0A99FE;
+    margin: 13px 0px 9px 0px;
+  }
+</style>
+
+<body>
+  <div class="header">
+    <div class="header_list">Feedback</div>
+    <div class="header_list">My List</div>
+  </div>
+
+  <div class="content1">
+    <input id="input" type="text" placeholder="Paste access token">
+    <button style="margin-top: 10px;" class="btn">fecth comments</button>
+    <div class="instructions">
+      <p style="margin-top: 15px;">Instructions:</p>
+      <ul class="ul">
+        <li>click ‘<span style="color: #0A99FE;">fetch comments</span>’</li>
+        <li>Review the feedback list</li>
+        <li>Convert to tasks and manage</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="content2">
+    <button class="refresh">Refresh List</button>
+    <div class="comment_list">
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+
+      <div>
+        <p>Frame: Header Component</p>
+        <p>Comment: Adjust font size to 18px.</p>
+        <p>By: Alex (12:34 PM, Dec 1)</p>
+        <button class="add all_btn">Add to List</button>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="this">
+      <p>v1.0</p>
+      <button class="btn">Convert all to task</button>
+    </div>
+
+  </footer>
+</body>
+
+
+
+</html>
