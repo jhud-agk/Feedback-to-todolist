@@ -122,9 +122,12 @@
   .comment_info {
     position: absolute;
     width: 100%;
-    top: 40px;
-    background: white;
+    < !-- top: 40px;
+    -->background: white;
+    height: 100%;
   }
+
+  .comment_info_hide {}
 
   .todo_list {
     border: 1px solid #EBEBF2;
@@ -171,7 +174,7 @@
         <input onchange="check_comments()" id="check1" type="checkbox">
       </div>
     </section>
-    <!-- https://s3-alpha.figma.com/static/user_p_v2.png -->
+
     <section id="page2_sub2" style="margin-bottom: 80px;" class="page2_sub">
       <div style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
         <div onclick="showNextPage('page3'), changePage2Nav(3)" style="cursor: pointer; display: flex; gap: 10px;">
@@ -199,14 +202,14 @@
 
 
   <div class="comment_info" id="comment_info">
-    <div>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
       <div class="nav">
         <div onclick="changePage2Nav(3)" class="header_list active_nav">Overview</div>
         <div onclick="changePage2Nav(4)" class="header_list">To-do (0)</div>
         <div onclick="changePage2Nav(5)" class="header_list">Comments (1)</div>
       </div>
-      <div>
-        <i class="fa-solid fa-xmark"></i>
+      <div style="padding: 10px;">
+        <i style="font-size: 16px; color: #7F7979;" class="fa-solid fa-xmark"></i>
       </div>
     </div>
 
@@ -395,6 +398,7 @@
 
     }
   }
+
 
 
   window.onmessage = (event) => {
