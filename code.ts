@@ -8,7 +8,6 @@ const getComments = async () => {
   const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC/comments`, {
     headers: {
       "Content-Type": "application/json",
-      // "Authorization": " Bearer figd_6vDlPuAfQ3jw3qoq-lOFib2680JyGeK15UzRrQXB",
       'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
   },
   })
@@ -23,7 +22,6 @@ const getFiles = async () => {
   const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC`, {
     headers: {
       "Content-Type": "application/json",
-      // "Authorization": " Bearer figd_6vDlPuAfQ3jw3qoq-lOFib2680JyGeK15UzRrQXB",
       'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
   },
   })
