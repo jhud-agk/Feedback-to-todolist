@@ -1,8 +1,45 @@
 
 
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, {width: 380, height:600});
+figma.showUI(__html__, {width: 450, height:700});
 
+
+const getComments = async () => {
+  const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC/comments`, {
+    headers: {
+      "Content-Type": "application/json",
+      // "Authorization": " Bearer figd_6vDlPuAfQ3jw3qoq-lOFib2680JyGeK15UzRrQXB",
+      'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
+  },
+  })
+  
+  console.log(await res.json())
+  figma.ui.postMessage({ type: 'get-comment', data: await res.json() })
+  
+  return await res.json()
+}
+
+const getFiles = async () => {
+  const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC`, {
+    headers: {
+      "Content-Type": "application/json",
+      // "Authorization": " Bearer figd_6vDlPuAfQ3jw3qoq-lOFib2680JyGeK15UzRrQXB",
+      'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
+  },
+  })
+  
+  console.log(await res.json())
+  figma.ui.postMessage({ type: 'get-files', data: await res.json() })
+  
+  return await res.json()
+}
+
+
+
+console.log("Checking figma.fileKey:", figma.fileKey)
+figma.ui.postMessage({ type: 'idd', data: figma.fileKey })
+figma.ui.postMessage({ type: 'load-comment', data: getComments() })
+figma.ui.postMessage({type: 'load_files', data: getFiles() })
 
 figma.ui.onmessage =  (msg: {type: string, count: number}) => {
   if (msg.type === 'create-shapes') {
