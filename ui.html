@@ -5,202 +5,483 @@
 
 <head>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+  <link rel="" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css">
-  <!-- <title>Document</title> -->
+  <!-- <script src="https://kit.fontawesome.com/0d24a6d486.js" crossorigin="anonymous"></script> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- <i class="fa-solid fa-circle-check"></i> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.9/dayjs.min.js"></script>
 </head>
 
 <style>
   * {
     padding: 0;
     margin: 0;
-  }
-
-  .all_btn {
-    background: transparent;
-    border: none;
+    font-size: 12px;
   }
 
   body {
-    font-family: "inter";
-    color: #1E1E1E;
-    font-size: 14px;
+    font-family: 'inter';
   }
 
-  .header {
-    display: flex;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    background-color: white;
-  }
-
-  .header_list {
-    width: 50%;
-    text-align: center;
-    padding: 10 0px;
-    border-bottom: 1px black solid;
-  }
-
-  .content1 {
-    padding: 5px 20px;
-    margin-top: 20px;
+  .page,
+  .comment_nav_hide {
     display: none;
   }
 
-  #input {
-    outline: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 0;
-    border: #7F7979 solid 1.3px;
+  .active,
+  .comment_nav {
+    display: block;
   }
 
-  .btn {
+  .all_btn {
     outline: none;
-    background: #0A99FE;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 20px;
+    background-color: transparent;
+  }
+
+  .btn_solid {
+    background-color: #0A99FE;
     color: white;
   }
 
-  .ul {
-    list-style-type: decimal;
-    margin-left: 20px;
-    margin-top: 10px;
-    color: inherit;
+  .btn_stroke {
+    color: #0A99FE;
+    border: #0A99FE solid 1px;
+    background-color: transparent;
   }
 
-  .ul li:not(:first-child) {
-    margin-top: 4px;
+  .first_page {
+    padding: 25px;
+    border-top: 1px solid #EBEBF2;
+    margin-top: 50px;
+  }
+
+  .nav {
+    display: flex;
+    border-bottom: 1px solid #EBEBF2;
+  }
+
+  .active_nav {
+    border-bottom: 1px solid #1E1E1E;
+    color: #1E1E1E !important;
+  }
+
+  .header_list {
+    cursor: pointer;
+  }
+
+  .nav div {
+    color: #BEBEBE;
+    padding: 12px 0px 12px 17px;
+  }
+
+  .search_con {
+    padding: 15px;
+    background-color: #FAFAFA;
+    border-bottom: 1px solid #EBEBF2;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+    border: #EBEBF2 solid 1px;
+    padding: 2px;
+  }
+
+  .input {
+    outline: none;
+    padding: 10px;
+    border: none;
+    width: 100%;
+  }
+
+  .input::placeholder {
+    color: #BEBEBE;
   }
 
   .footer {
-    position: fixed;
-    background: white;
-    bottom: 0px;
-    padding: 15px 20px;
-    border-top: 1px #EBEBF2 solid;
-    width: 100%;
-
-  }
-
-  .footer div {
-    width: 90%;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 10px;
+    justify-content: end;
+    padding: 15px;
+    border-top: 1px solid #EBEBF2;
+    position: fixed;
+    bottom: 0px;
+    width: 93%;
+    background-color: white;
   }
 
-  .content2 {
-    margin-top: 40px;
+  .bottom {
+    border-bottom: 1px solid #EBEBF2;
   }
 
-  .content2 .refresh {
-    background: transparent;
-    border: none;
-    padding: 10px 20px;
+  .comment_info {
+    position: absolute;
+    width: 100%;
+    < !-- top: 40px;
+    -->background: white;
+    height: 100%;
   }
 
-  .comment_list {
-    border-top: #EBEBF2 1px solid;
-    padding: 5px 20px;
+  .comment_info_hide {}
 
-  }
-
-  .comment_list div {
-    border-bottom: #EBEBF2 1px solid;
-  }
-
-  .comment_list p {
-    margin-top: 5px;
-
-  }
-
-  .add {
-    color: #0A99FE;
-    margin: 13px 0px 9px 0px;
+  .todo_list {
+    border: 1px solid #EBEBF2;
+    border-radius: 5px;
   }
 </style>
 
+
 <body>
-  <div class="header">
-    <div class="header_list">Feedback</div>
-    <div class="header_list">My List</div>
+  <div id="page1" class="first_page page">
+    <h3 style="font-weight: 600; margin-top: 40px;">Import Figma Comments</h3>
+    <p style="margin-top: 10px; color: #7F7979;">Connecting your Figma will allow you easily filter/ Search all your
+      Figma comments and
+      more. you can add custom
+      statuses, to-do-list, due dates and much more, you will only need to do this once per Figma file.</p>
+
+    <button onclick="showNextPage('page2')" class="all_btn btn_solid" style="margin-top: 30px;">Connect This Figma
+      File</button>
   </div>
 
-  <div class="content1">
-    <input id="input" type="text" placeholder="Paste access token">
-    <button style="margin-top: 10px;" class="btn">fecth comments</button>
-    <div class="instructions">
-      <p style="margin-top: 15px;">Instructions:</p>
-      <ul class="ul">
-        <li>click ‘<span style="color: #0A99FE;">fetch comments</span>’</li>
-        <li>Review the feedback list</li>
-        <li>Convert to tasks and manage</li>
-      </ul>
+  <div id="page2" class="page active">
+    <div class="nav">
+      <div onclick="changePage2Nav(0)" class="header_list active_nav">Figma Comments</div>
+      <div onclick="changePage2Nav(1)" class="header_list">Ongoing Tasks</div>
+      <div onclick="changePage2Nav(2)" class="header_list">My To-do List</div>
     </div>
+
+    <div class="search_con">
+      <div class="search">
+        <i style="font-size: 20px; color: #BEBEBE; padding-left: 15px;" class="fa-solid fa-magnifying-glass"></i>
+        <input class="input" type="text" placeholder="Search a comment or keyword ...">
+        <img src="/assets/search.svg" alt="">
+      </div>
+    </div>
+
+
+    <section id="page2_sub1" class="page2_sub bottom"
+      style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
+      <div class="" style="display: flex; align-items: center; font-weight: 500; gap: 8px;">
+        <i class="fa-brands fa-figma"></i>
+        <p id="page2_tt">Backlog (3)</p>
+      </div>
+      <div>
+        <input onchange="check_comments()" id="check1" type="checkbox">
+      </div>
+    </section>
+
+    <section id="page2_sub2" style="margin-bottom: 80px;" class="page2_sub">
+      <div style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+        <div onclick="showNextPage('page3'), changePage2Nav(3)" style="cursor: pointer; display: flex; gap: 10px;">
+          <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+              src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
+          </div>
+          <div>
+            <h3 style="font-weight: 500;">For hero section interaction and text scroll see ...</h3>
+            <p style="margin:8px 0px; color: #7F7979;">Landing page</p>
+            <p style="color: #7F7979;">Last comment: 2 mins ago</p>
+          </div>
+        </div>
+        <div>
+          <input type="checkbox">
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <button onclick="moveToOngoing()" id="action_btn" class="all_btn btn_stroke">Move To ongoing</button>
+      <button class="all_btn btn_solid">Export</button>
+    </footer>
   </div>
 
-  <div class="content2">
-    <button class="refresh">Refresh List</button>
-    <div class="comment_list">
-      <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
+
+  <div class="comment_info" id="comment_info">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div class="nav">
+        <div onclick="changePage2Nav(3)" class="header_list active_nav">Overview</div>
+        <div onclick="changePage2Nav(4)" class="header_list">To-do (0)</div>
+        <div onclick="changePage2Nav(5)" class="header_list">Comments (1)</div>
+      </div>
+      <div style="padding: 10px;">
+        <i style="font-size: 16px; color: #7F7979;" class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+
+
+    <div style="color: #7F7979;" class="comment_nav_hide comment_nav">
+      <div style="padding:0px 15px; color: #BEBEBE;">
+        <p style="padding: 15px 0px;" class="bottom">Create a title (e.g landing page changes)</p>
       </div>
 
+      <div style="padding: 0px 15px;">
+        <div style=" padding: 15px 0px; display: flex;" class="bottom">
+          <div class="" style="display: flex; align-items: center; gap: 5px; width: 50%;">
+            <i class="fa-solid fa-crop-simple"></i>
+            <p>Landing Page</p>
+          </div>
+
+          <div class="" style="display: flex; align-items: center; gap: 5px; width: 50%;">
+            <i class="fa-regular fa-file"></i>
+            <p>Page 1</p>
+          </div>
+        </div>
+
+        <div style=" padding: 15px 0px; display: flex;" class="bottom">
+          <div class="" style="display: flex; align-items: center; gap: 10px; width: 50%;">
+            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+              src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
+            <p>Pelumi</p>
+          </div>
+
+          <div class="" style=" display: flex; align-items: center; gap: 5px; width: 50%;">
+            <i class="fa-regular fa-circle-check"></i>
+            <p>Created 4 min ago</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="bottom"
+            style=" display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 50%; padding: 15px 0px;">
+            <p>Add due date</p>
+            <i class="fa-regular fa-calendar-days"></i>
+          </div>
+        </div>
+
+        <div class="bottom"
+          style="display: flex; align-items: center; gap: 15px; width: 100%; margin-top: 30px; padding: 15px 0px;">
+          <i class="fa-regular fa-comment"></i>
+          <p>1 Comment</p>
+        </div>
+
+
+        <div class="bottom" style="display: flex; gap: 10px; padding: 15px 0px;">
+          <i class="fa-solid fa-list"></i>
+          <div style="width: 100%;">
+            <p>0/0 To-do completed (0%)</p>
+            <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;"></div>
+          </div>
+        </div>
+      </div>
       <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
+        <button class="all_btn" style="margin-top: 10px; color: #0A99FE;">Add new Tag</button>
+      </div>
+    </div>
+
+
+
+    <div style="padding: 0px 15px;" class="todo comment_nav_hide">
+      <div style="padding:0px 15px; color: #BEBEBE;" class="bottom">
+        <p style="padding: 15px 0px;">Add a to-do list (e.g add an image)</p>
       </div>
 
-      <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
+      <div class="bottom" style="padding: 15px 15px 20px 15px;">
+        <button class="all_btn btn_solid">Add To-do</button>
       </div>
 
-      <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
+      <div style="width: 100%; padding: 12px 0px;">
+        <p style="color: #7F7979;">0/0 To-do completed (0%)</p>
+        <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
+          <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
+        </div>
       </div>
 
-      <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
-      </div>
+      <div class="todo_list">
+        <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
+          <i class="fa-brands fa-figma"></i>
+          <p>To-do Items (3)</p>
+        </div>
+        <div style="padding: 0px 15px;">
+          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+            <input type="checkbox" name="" id="">
+            <p>Find an image on unsplash</p>
+          </div>
 
-
-      <div>
-        <p>Frame: Header Component</p>
-        <p>Comment: Adjust font size to 18px.</p>
-        <p>By: Alex (12:34 PM, Dec 1)</p>
-        <button class="add all_btn">Add to List</button>
+          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+            <input type="checkbox" name="" id="">
+            <p>Images must be 1220px by 1000px, landscape.</p>
+          </div>
+        </div>
       </div>
 
     </div>
+
+
+    <div class="comments comment_nav_hide" style="padding: 0px ;">
+      <div style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+        <p>Today</p>
+        <p style="color: #BEBEBE;">an hour ago</p>
+      </div>
+      <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
+        <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+          <img style="height: 28px; width: 28px;  border-radius: 100%;"
+            src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 5px;">
+            <p style="font-weight: 500;">Adam</p>
+            <span style="color: #BEBEBE;">12.09pm</span>
+          </div>
+
+          <p style="margin:8px 0px; color: #7F7979;">For hero section interaction and text scroll please checkout see
+            https://inspirux.com/about/ and https://giats.me/</p>
+          <!-- <p style="color: #7F7979;">Last comment: 2 mins ago</p> -->
+        </div>
+
+      </div>
+
+
+      <div style="padding: 0px 60px; margin-top: 40px;">
+        <input style="width: 100%;" type="text" class="input bottom" placeholder="Type a response" name="" id="">
+      </div>
+
+
+      <footer class="footer">
+        <button id="reply_btn" class="all_btn btn_solid">Reply to Figma Thread</button>
+      </footer>
+
+    </div>
+
   </div>
-
-  <footer class="footer">
-    <div class="this">
-      <p>v1.0</p>
-      <button class="btn">Convert all to task</button>
-    </div>
-
-  </footer>
 </body>
 
 
+
+<script>
+
+  let global_comments
+  let global_files
+  let comments_withfile
+
+  <!-- page routing  -->
+  function showNextPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'))
+    document.getElementById(pageId).classList.add('active')
+  }
+
+  function changePage2Nav(num) {
+    document.querySelectorAll('.header_list').forEach(nav => nav.classList.remove('active_nav'))
+    document.querySelectorAll(".header_list")[num].classList.add('active_nav')
+
+    const title = document.getElementById('page2_tt')
+    if (num === 0) {
+      title.innerText = 'Backlog (3)'
+    } else {
+      title.innerText = "Ongoing Tasks (2)"
+    }
+
+    if (num >= 3) {
+      const correct_number = num - 3
+      document.querySelectorAll('.comment_nav_hide').forEach(nav => nav.classList.remove('comment_nav'))
+      document.querySelectorAll('.comment_nav_hide')[correct_number].classList.add('comment_nav')
+    }
+
+    const action_btn = document.getElementById('action_btn')
+
+    if (num === 0) {
+      action_btn.innerText = 'Move To ongoing'
+    } else if (num === 1) {
+      action_btn.innerText = "Mark as complete"
+    }
+
+  }
+
+  let overlayShow = false
+  function commentOverlay() {
+    const getOverlay = document.getElementById('comment_info')
+    if (overlayShow) {
+
+    }
+  }
+
+
+
+  window.onmessage = (event) => {
+    console.log(event.data)
+    if (event.data.pluginMessage?.type === 'idd') {
+      const fileId = event.data.pluginMessage.data;
+    }
+
+    if (event.data.pluginMessage.type === "get-comment") {
+      console.log(event.data.pluginMessage.data)
+      const comments = event.data.pluginMessage.data.comments;
+      global_comments = comments
+
+    }
+
+    if (event.data.pluginMessage.type === "get-files") {
+      const files = event.data.pluginMessage.data.document.children[0].children
+      global_files = files
+
+      const mergedArray = global_comments.map(item1 => {
+        const match = global_files.find(item2 => item2.id === item1.client_meta?.node_id);
+        return { ...item1, board_name: match ? match.name : null };
+      });
+      comments_withfile = mergedArray
+
+
+      document.getElementById('page2_sub2').innerHTML = comments_withfile.filter(c => c.parent_id === "").map(c => `<div
+  style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+  <div onclick="showNextPage('page3'), changePage2Nav(3)" style="cursor: pointer; display: flex; gap: 10px;">
+    <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+      <img style="height: 28px; width: 28px;  border-radius: 100%;"
+        src=${extractDefaultAvatar(c.user.img_url)} alt="">
+    </div>
+    <div>
+      <h3 style="font-weight: 500;">${c.message}</h3>
+      <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
+      <p style="color: #7F7979;">Last comment: ${dayjs(c.created_at).format('YYYY-MM-DD h:mm A')}</p>
+    </div>
+  </div>
+  <div>
+    <input id=${c.id} class='all_check' type="checkbox">
+  </div>
+</div>`).join('')
+
+    }
+
+
+  };
+
+
+  function check_comments() {
+    const getCheck = document.getElementById('check1')
+    if (getCheck.checked) {
+      document.querySelectorAll('.all_check').forEach(c => c.checked = true)
+    } else {
+      document.querySelectorAll('.all_check').forEach(c => c.checked = false)
+    }
+  }
+
+
+  function moveToOngoing() {
+    const get_checked = document.querySelectorAll('.all_check');
+    console.log(get_checked);
+
+    const send = [];
+
+    get_checked.forEach(checkbox => {
+      if (checkbox.checked) {
+        send.push(checkbox);
+      }
+    });
+    const getCheckedComms = global_comments.filter(obj =>
+      send.some(obj1 => obj.id === obj1.id)
+    );
+    console.log(getCheckedComms);
+  }
+
+
+  function extractDefaultAvatar(url) {
+    const match = url.match(/default=([^&]+)/); // Extract default parameter
+    return match ? decodeURIComponent(match[1]) : url; // Decode and return
+  }
+
+</script>
 
 </html>
