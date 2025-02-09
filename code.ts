@@ -3,14 +3,11 @@
 figma.showUI(__html__, {width: 450, height:700});
 
 
-// const user_token = (window).API_URL 
-
-
 const getComments = async () => {
   const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC/comments`, {
     headers: {
       "Content-Type": "application/json",
-      'X-FIGMA-TOKEN': ""
+     
   },
   })
   
@@ -24,7 +21,6 @@ const getFiles = async () => {
   const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC`, {
     headers: {
       "Content-Type": "application/json",
-      'X-FIGMA-TOKEN':""
   },
   })
   
@@ -33,6 +29,10 @@ const getFiles = async () => {
   
   return await res.json()
 }
+
+// const getAllTasks = async () => {
+//   const res = await fetch('')
+// }
 
 
 
