@@ -21,6 +21,7 @@ const getUser = async () => {
   const res = await fetch(`https://api.figma.com/v1/me`, {
     headers: {
       "Content-Type": "application/json",
+      'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
   },
   })
   
@@ -34,6 +35,7 @@ const getFiles = async () => {
   const res = await fetch(`https://api.figma.com/v1/files/eNDMTZhqPS1wYSkLMSaovC`, {
     headers: {
       "Content-Type": "application/json",
+      'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
   },
   })
   

@@ -147,7 +147,7 @@
 <body style="overflow: hidden;">
 
   <!-- Page 1 -->
-  <div id="page1" class="first_page page active">
+  <div id="page1" class="first_page page ">
     <h3 style="font-weight: 600; margin-top: 40px;">Import Figma Comments</h3>
     <p style="margin-top: 10px; color: #7F7979;">Connecting your Figma will allow you easily filter/ Search all your
       Figma comments and
@@ -160,7 +160,7 @@
 
 
   <!-- page 2  -->
-  <div style="height: 100%; overflow-x: scroll;" id="page2" class="page ">
+  <div style="height: 100%; overflow-x: scroll;" id="page2" class="page active">
     <div class="nav">
       <div onclick="changePage2Nav(0), commentOverlay(false)" class="header_list active_nav">Figma Comments</div>
       <div onclick="changePage2Nav(1)" class="header_list">Ongoing Tasks</div>
@@ -268,7 +268,7 @@
         <div style=" padding: 15px 0px; display: flex;" class="bottom">
           <div class="" style="display: flex; align-items: center; gap: 5px; width: 50%;">
             <i class="fa-solid fa-crop-simple"></i>
-            <p>Landing Page</p>
+            <p id="task_page">Landing Page</p>
           </div>
 
           <div class="" style="display: flex; align-items: center; gap: 5px; width: 50%;">
@@ -279,22 +279,23 @@
 
         <div style=" padding: 15px 0px; display: flex;" class="bottom">
           <div class="" style="display: flex; align-items: center; gap: 10px; width: 50%;">
-            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+            <img id="task_img" style="height: 28px; width: 28px;  border-radius: 100%;"
               src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
-            <p>Pelumi</p>
+            <p id="task_creator">Pelumi</p>
           </div>
 
           <div class="" style=" display: flex; align-items: center; gap: 5px; width: 50%;">
             <i class="fa-regular fa-circle-check"></i>
-            <p>Created 4 min ago</p>
+            <p id="task_created">Created 4 min ago</p>
           </div>
         </div>
 
         <div>
           <div class="bottom"
             style=" display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 50%; padding: 15px 0px;">
-            <p>Add due date</p>
+            <p id="due_date">Add due date</p>
             <i class="fa-regular fa-calendar-days"></i>
+            <input type="date">
           </div>
         </div>
 
@@ -406,6 +407,7 @@
   let userInfo
 
   let ongoing_tasks
+  let selectedTask
 
   const backend_url = "http://localhost:3030/api/v1"
 
@@ -443,8 +445,6 @@
     }
   }
 
-
-
   async function getOngoingTasks(user_id, file_id) {
     const res = await fetch(`${backend_url}/get-tasks/${user_id}/${file_id}`, {
       headers: {
@@ -459,7 +459,7 @@
       document.getElementById('page2_sub3').innerHTML = ongoing_tasks.map(c =>
         `<div 
           style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
-          <div onclick="commentOverlay(true)" style="cursor: pointer; display: flex; gap: 10px;">
+          <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
             <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
               <img style="height: 28px; width: 28px;  border-radius: 100%;"
                 src=${extractDefaultAvatar(c.creator_img)} alt="">
@@ -481,7 +481,6 @@
         </div>`
     }
   }
-
 
   async function loadComments() {
     let filter = comments_withfile.filter(obj =>
@@ -516,8 +515,6 @@
     }
   }
 
-
-
   window.onmessage = (event) => {
 
     if (event.data.pluginMessage?.type === 'idd') {
@@ -543,8 +540,6 @@
             figma_image: userInfo.img_url
           }),
         })
-
-
       }
       createUser()
     }
@@ -578,7 +573,6 @@
     }
   };
 
-
   function check_comments() {
     const getCheck = document.getElementById('check1')
     if (getCheck.checked) {
@@ -588,7 +582,6 @@
     }
   }
 
-
   function check_ongoing() {
     const getCheck = document.getElementById('check11')
     if (getCheck.checked) {
@@ -597,7 +590,6 @@
       document.querySelectorAll('.all_check1').forEach(c => c.checked = false)
     }
   }
-
 
   function moveToOngoing() {
     const get_checked = document.querySelectorAll('.all_check');
@@ -631,25 +623,34 @@
           file_key: comms.file_key,
           user_id: userInfo.id,
           figma_createdOn: comms.created_at,
-          creator_img: comms.user.img_url
-
+          creator_img: comms.user.img_url,
+          creator_name: comms.user.handle
         }))),
       })
       await getOngoingTasks(userInfo.id, "eNDMTZhqPS1wYSkLMSaovC")
       await loadComments()
 
     }
-
     createTask()
   }
 
-
   function extractDefaultAvatar(url) {
-    const match = url.match(/default=([^&]+)/); // Extract default parameter
-    return match ? decodeURIComponent(match[1]) : url; // Decode and return
+    const match = url.match(/default=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : url;
   }
 
+  function selectTask(taskId) {
+    selectedTask = ongoing_tasks.find(obj => obj.figma_id === `${taskId}`)
+    document.getElementById('task_page').innerHTML = selectedTask.board_name
+    document.getElementById('task_img').src = extractDefaultAvatar(selectedTask.creator_img)
+    document.getElementById('task_created').innerHTML = dayjs(selectedTask.createdOn).format('YYYY-MM-DD h:mm A')
+    document.getElementById('task_creator').innerHTML = selectedTask.creator_name
 
+    if (selectedTask.due_date !== null) {
+      document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD h:mm A')
+    }
+
+  }
 
 </script>
 
