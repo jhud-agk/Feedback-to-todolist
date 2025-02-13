@@ -250,7 +250,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between;">
       <div class="nav">
         <div onclick="changeNavOverlay(0)" class="header_listc active_navc">Overview</div>
-        <div onclick="changeNavOverlay(1)" class="header_listc">To-do (0)</div>
+        <div id="todo_nav" onclick="changeNavOverlay(1)" class="header_listc">To-do (0)</div>
         <div onclick="changeNavOverlay(2)" class="header_listc">Comments (1)</div>
       </div>
       <div style="padding: 10px;" onclick="commentOverlay(false)">
@@ -309,25 +309,35 @@
         <div class="bottom" style="display: flex; gap: 10px; padding: 15px 0px;">
           <i class="fa-solid fa-list"></i>
           <div style="width: 100%;">
-            <p>0/0 To-do completed (0%)</p>
-            <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;"></div>
+            <p id="todoCom">0/0 To-do completed (0%)</p>
+            <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
+              <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
+            </div>
           </div>
         </div>
       </div>
       <div>
-        <button class="all_btn" style="margin-top: 10px; color: #0A99FE;">Add new Tag</button>
+        <button onclick="showTags()" id="show_tag_btn" class="all_btn" style="margin-top: 10px; color: #0A99FE;">Add new
+          Tag</button>
+        <div id="show_tags" style="padding: 15px;" class="tags">
+          <div style="display: flex; border: solid 2px #7F7979; padding: 5px; flex-wrap: wrap;" class="">
+            <div id="tag_con" style="display: flex; gap: 5px; flex-wrap: wrap;">
+
+            </div>
+            <input id="tagInput" type="text" class="input" placeholder="type here">
+          </div>
+        </div>
       </div>
     </div>
 
-
-
     <div style="padding: 0px 15px;" class="todo comment_nav_hide">
       <div style="padding:0px 15px; color: #BEBEBE;" class="bottom">
-        <p style="padding: 15px 0px;">Add a to-do list (e.g add an image)</p>
+        <input id="todoInput" style="padding: 15px 0px;" class="input"
+          placeholder="Add a to-do list (e.g add an image)" />
       </div>
 
       <div class="bottom" style="padding: 15px 15px 20px 15px;">
-        <button class="all_btn btn_solid">Add To-do</button>
+        <button onclick="createTodo()" class="all_btn btn_solid">Add To-do</button>
       </div>
 
       <div style="width: 100%; padding: 12px 0px;">
@@ -340,18 +350,13 @@
       <div class="todo_list">
         <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
           <i class="fa-brands fa-figma"></i>
-          <p>To-do Items (3)</p>
+          <p id="todoLen">To-do Items (3)</p>
         </div>
-        <div style="padding: 0px 15px;">
-          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-            <input type="checkbox" name="" id="">
-            <p>Find an image on unsplash</p>
-          </div>
-
-          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+        <div id="todos" style="padding: 0px 15px;">
+          <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
             <input type="checkbox" name="" id="">
             <p>Images must be 1220px by 1000px, landscape.</p>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -408,6 +413,9 @@
 
   let ongoing_tasks
   let selectedTask
+  let taskTodo
+
+  let fileId = "eNDMTZhqPS1wYSkLMSaovC"
 
   const backend_url = "http://localhost:3030/api/v1"
 
@@ -420,8 +428,6 @@
   function changePage2Nav(num) {
     document.querySelectorAll('.header_list').forEach(nav => nav.classList.remove('active_nav'))
     document.querySelectorAll(".header_list")[num].classList.add('active_nav')
-
-
     document.querySelectorAll('.tags').forEach(nav => nav.classList.remove('tag_active'))
     document.querySelectorAll(".tags")[num].classList.add('tag_active')
   }
@@ -432,6 +438,87 @@
     document.querySelectorAll('.comment_nav_hide').forEach(nav => nav.classList.remove('comment_nav'))
     document.querySelectorAll('.comment_nav_hide')[num].classList.add('comment_nav')
   }
+
+  function showTags(tags) {
+    document.getElementById("show_tag_btn").classList.add('tags')
+    document.getElementById('show_tags').classList.remove('tags')
+    document.getElementById('tag_con').innerHTML = tags.map(obj => `
+              <div
+                style="background-color: #0A99FE; color: white; padding: 5px 15px; display: flex; align-items: center; gap: 4px;">
+                <p>${obj}</p>
+                <i style="font-size: 14px; " class="fa-solid fa-xmark"></i>
+              </div>
+          `).join('')
+
+  }
+
+  async function createTodo() {
+    const todoInput = document.getElementById("todoInput")
+    if (todoInput.value.length > 3) {
+      const res = await fetch(`${backend_url}/create-todo`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          todo: todoInput.value,
+          task_id: selectedTask.figma_id,
+          user_id: userInfo.figma_id,
+          file_id: fileId,
+        }),
+      })
+      const todo = await res.json()
+      todoInput.value = ''
+      fetchTasksTodo()
+    }
+  }
+
+  async function fetchTasksTodo() {
+    const res = await fetch(`${backend_url}/get-todo-task/${selectedTask.id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    const data = await res.json()
+    taskTodo = data.data
+    document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
+    document.getElementById('todos').innerHTML = taskTodo.map(obj => `
+     <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+            <input type="checkbox" name="" id=${obj.id}>
+            <p>${obj.todo}</p>
+          </div>`).join("")
+    document.getElementById("todo_nav").innerHTML = `To-do (${taskTodo.length})`
+  }
+
+
+  async function addTag(tag) {
+    const res = await fetch(`${backend_url}/add-tag`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        tag,
+        task_figma_id: selectedTask.figma_id,
+        user_figma_id: userInfo.id
+      }),
+    })
+    const tags = await res.json()
+    showTags(tags.data)
+  }
+
+  document.getElementById('tagInput').addEventListener('keydown', function (event) {
+    if (event.target.value.trim().length > 0) {
+      if (event.key === " " || event.key === "Enter") {
+        event.preventDefault();
+        addTag(event.target.value)
+        event.target.value = ''
+      }
+    } else {
+      console.log('Tag empty')
+    }
+  })
+
 
 
   function commentOverlay(overlayShow) {
@@ -515,6 +602,7 @@
     }
   }
 
+
   window.onmessage = (event) => {
 
     if (event.data.pluginMessage?.type === 'idd') {
@@ -558,8 +646,8 @@
           },
           method: "POST",
           body: JSON.stringify({
-            figma_file_id: "eNDMTZhqPS1wYSkLMSaovC",
-            figma_file_key: "eNDMTZhqPS1wYSkLMSaovC",
+            figma_file_id: fileId,
+            figma_file_key: fileId,
             figma_name: event.data.pluginMessage.data.name,
             user_email: userInfo.email
           }),
@@ -568,7 +656,7 @@
       }
 
       createFile()
-      getOngoingTasks(userInfo.id, "eNDMTZhqPS1wYSkLMSaovC")
+      getOngoingTasks(userInfo.id, fileId)
 
     }
   };
@@ -627,7 +715,7 @@
           creator_name: comms.user.handle
         }))),
       })
-      await getOngoingTasks(userInfo.id, "eNDMTZhqPS1wYSkLMSaovC")
+      await getOngoingTasks(userInfo.id, fileId)
       await loadComments()
 
     }
@@ -640,6 +728,8 @@
   }
 
   function selectTask(taskId) {
+    document.getElementById("show_tag_btn").classList.remove('tags')
+    document.getElementById('show_tags').classList.add('tags')
     selectedTask = ongoing_tasks.find(obj => obj.figma_id === `${taskId}`)
     document.getElementById('task_page').innerHTML = selectedTask.board_name
     document.getElementById('task_img').src = extractDefaultAvatar(selectedTask.creator_img)
@@ -649,6 +739,12 @@
     if (selectedTask.due_date !== null) {
       document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD h:mm A')
     }
+
+    if (selectedTask.tags !== null) {
+      showTags(selectedTask.tags)
+    }
+
+    fetchTasksTodo()
 
   }
 
