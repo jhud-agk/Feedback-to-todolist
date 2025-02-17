@@ -141,6 +141,10 @@
     border: 1px solid #EBEBF2;
     border-radius: 5px;
   }
+
+  .strike {
+    text-decoration: line-through;
+  }
 </style>
 
 
@@ -231,8 +235,19 @@
       </section>
     </section>
 
-    <section id="all_todo" class="tags">
-      for todo list
+    <section id="all_todo" class="tags" style="padding: 15px;">
+      <div class="todo_list">
+        <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
+          <i class="fa-brands fa-figma"></i>
+          <p id="todoLen">To-do Items (0)</p>
+        </div>
+        <div id="todosss" style="padding: 0px 15px;">
+          <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+                    <input type="checkbox" name="" id="">
+                    <p>Images must be 1220px by 1000px, landscape.</p>
+                  </div> -->
+        </div>
+      </div>
     </section>
 
 
@@ -309,20 +324,20 @@
         <div class="bottom" style="display: flex; gap: 10px; padding: 15px 0px;">
           <i class="fa-solid fa-list"></i>
           <div style="width: 100%;">
-            <p id="todoCom">0/0 To-do completed (0%)</p>
-            <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
+            <p id="todoCom"></p>
+            <div id="todoBar" style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
               <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
             </div>
           </div>
         </div>
       </div>
       <div>
-        <button onclick="showTags()" id="show_tag_btn" class="all_btn" style="margin-top: 10px; color: #0A99FE;">Add new
+        <button onclick="showTags([])" id="show_tag_btn" class="all_btn" style="margin-top: 10px; color: #0A99FE;">Add
+          new
           Tag</button>
         <div id="show_tags" style="padding: 15px;" class="tags">
           <div style="display: flex; border: solid 2px #7F7979; padding: 5px; flex-wrap: wrap;" class="">
             <div id="tag_con" style="display: flex; gap: 5px; flex-wrap: wrap;">
-
             </div>
             <input id="tagInput" type="text" class="input" placeholder="type here">
           </div>
@@ -341,16 +356,15 @@
       </div>
 
       <div style="width: 100%; padding: 12px 0px;">
-        <p style="color: #7F7979;">0/0 To-do completed (0%)</p>
-        <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
-          <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
+        <p id="todoCom1" style="color: #7F7979;">0/0 To-do completed (0%)</p>
+        <div id="todoBar1" style="width: 100%; background-color: #EBEBF2; height: 4px; margin-top: 10px;">
         </div>
       </div>
 
       <div class="todo_list">
         <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
           <i class="fa-brands fa-figma"></i>
-          <p id="todoLen">To-do Items (3)</p>
+          <p id="todoLen">To-do Items (0)</p>
         </div>
         <div id="todos" style="padding: 0px 15px;">
           <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
@@ -359,6 +373,7 @@
           </div> -->
         </div>
       </div>
+
 
     </div>
 
@@ -442,14 +457,15 @@
   function showTags(tags) {
     document.getElementById("show_tag_btn").classList.add('tags')
     document.getElementById('show_tags').classList.remove('tags')
-    document.getElementById('tag_con').innerHTML = tags.map(obj => `
+    if (tags.length > 0) {
+      document.getElementById('tag_con').innerHTML = tags.map(obj => `
               <div
                 style="background-color: #0A99FE; color: white; padding: 5px 15px; display: flex; align-items: center; gap: 4px;">
                 <p>${obj}</p>
-                <i style="font-size: 14px; " class="fa-solid fa-xmark"></i>
+                <i onclick="addTag('${obj}')" style="font-size: 14px;" class="fa-solid fa-xmark"></i>
               </div>
           `).join('')
-
+    }
   }
 
   async function createTodo() {
@@ -473,6 +489,7 @@
     }
   }
 
+  // fecth todo and change status
   async function fetchTasksTodo() {
     const res = await fetch(`${backend_url}/get-todo-task/${selectedTask.id}`, {
       headers: {
@@ -481,16 +498,54 @@
     })
     const data = await res.json()
     taskTodo = data.data
+    console.log(taskTodo)
     document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
     document.getElementById('todos').innerHTML = taskTodo.map(obj => `
-     <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-            <input type="checkbox" name="" id=${obj.id}>
-            <p>${obj.todo}</p>
-          </div>`).join("")
-    document.getElementById("todo_nav").innerHTML = `To-do (${taskTodo.length})`
+   <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+    <div onclick="updateTodo('${obj.id}')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
+    <p data-uuid="${obj.id}" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
+  </div>
+`).join("");
+
+    const resolved = taskTodo.filter(obj => obj.is_resolved === true)
+    const not_resolved = taskTodo.filter(obj => obj.is_resolved === false)
+    let percent = 0
+    if (taskTodo.length > 0) {
+      percent = (resolved.length / taskTodo.length) * 100
+    }
+    document.getElementById("todo_nav").innerHTML = `To-do (${not_resolved.length})`
+    document.getElementById('todoCom').innerHTML = `${resolved.length}/${taskTodo.length} To-do completed (${percent !== 0 ? formatNumber(percent) : '0'})%`
+    document.getElementById('todoBar').innerHTML = `<div style="width: ${percent}%; background-color: #37AE6D; height: 4px;"></div>`
+    document.getElementById('todoCom1').innerHTML = `${resolved.length}/${taskTodo.length} To-do completed (${percent !== 0 ? formatNumber(percent) : '0'})%`
+    document.getElementById('todoBar1').innerHTML = `<div style="width: ${percent}%; background-color: #37AE6D; height: 4px;"></div>`
   }
 
+  let checkedTodo
+  async function updateTodo(id) {
+    checkedTodo = id
+    await changeTodoStatus(checkedTodo)
+    const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
+    // if (todo.contains('strike')) {
+    // todo.remove('strike')
+    // } else {
+    // todo.add('strike')
+    //}
+    await fetchTasksTodo()
+  }
+  async function changeTodoStatus(checkedTodo) {
+    const res = await fetch(`${backend_url}/change-todo-status`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        todo_id: checkedTodo,
+        user_id: userInfo.id
+      }),
+    })
+  }
 
+  // add tag
   async function addTag(tag) {
     const res = await fetch(`${backend_url}/add-tag`, {
       headers: {
@@ -520,7 +575,7 @@
   })
 
 
-
+  // show comments 
   function commentOverlay(overlayShow) {
     const getOverlay = document.getElementById('comment_info')
     if (overlayShow) {
@@ -532,6 +587,7 @@
     }
   }
 
+  //fetch ongoing  tasks and load it
   async function getOngoingTasks(user_id, file_id) {
     const res = await fetch(`${backend_url}/get-tasks/${user_id}/${file_id}`, {
       headers: {
@@ -569,13 +625,14 @@
     }
   }
 
+  // load all comment from figma
   async function loadComments() {
     let filter = comments_withfile.filter(obj =>
       !ongoing_tasks.some(obj1 => obj.id === obj1.figma_id)
     );
     filter = filter.filter(c => c.parent_id === "")
     console.log('filter', filter)
-    if (filter.length > 1) {
+    if (filter.length > 0) {
       document.getElementById('page2_sub2').innerHTML = filter.map(c =>
         `<div 
           style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
@@ -681,10 +738,7 @@
 
   function moveToOngoing() {
     const get_checked = document.querySelectorAll('.all_check');
-    console.log(get_checked);
-
     const send = [];
-
     get_checked.forEach(checkbox => {
       if (checkbox.checked) {
         send.push(checkbox);
@@ -693,8 +747,6 @@
     const getCheckedComms = comments_withfile.filter(obj =>
       send.some(obj1 => obj.id === obj1.id)
     );
-    console.log(getCheckedComms);
-
     async function createTask() {
       const res = await fetch(`${backend_url}/create-task`, {
         headers: {
@@ -717,15 +769,11 @@
       })
       await getOngoingTasks(userInfo.id, fileId)
       await loadComments()
-
     }
     createTask()
   }
 
-  function extractDefaultAvatar(url) {
-    const match = url.match(/default=([^&]+)/);
-    return match ? decodeURIComponent(match[1]) : url;
-  }
+
 
   function selectTask(taskId) {
     document.getElementById("show_tag_btn").classList.remove('tags')
@@ -739,13 +787,23 @@
     if (selectedTask.due_date !== null) {
       document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD h:mm A')
     }
-
-    if (selectedTask.tags !== null) {
-      showTags(selectedTask.tags)
-    }
-
+    showTags(selectedTask.tags)
     fetchTasksTodo()
+  }
 
+
+
+
+
+
+  // helper functions 
+  function formatNumber(num) {
+    return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
+  }
+
+  function extractDefaultAvatar(url) {
+    const match = url.match(/default=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : url;
   }
 
 </script>
