@@ -1,6 +1,6 @@
 
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__, {width: 450, height:700});
+figma.showUI(__html__, { width: 450, height: 700 });
 
 // const backend_url = "http://localhost:3030/api/v1"
 const getComments = async () => {
@@ -8,12 +8,12 @@ const getComments = async () => {
     headers: {
       "Content-Type": "application/json",
       'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
-  },
+    },
   })
-  
+
   // console.log(await res.json())
   figma.ui.postMessage({ type: 'get-comment', data: await res.json() })
-  
+
   return await res.json()
 }
 
@@ -22,12 +22,12 @@ const getUser = async () => {
     headers: {
       "Content-Type": "application/json",
       'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
-  },
+    },
   })
-  
-  console.log('here',await res.json())
+
+  console.log('here', await res.json())
   figma.ui.postMessage({ type: 'get-user', data: await res.json() })
-  
+
   return await res.json()
 }
 
@@ -36,12 +36,12 @@ const getFiles = async () => {
     headers: {
       "Content-Type": "application/json",
       'X-FIGMA-TOKEN': 'figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye'
-  },
+    },
   })
-  
+
   // console.log(await res.json())
   figma.ui.postMessage({ type: 'get-files', data: await res.json() })
-  
+
   return await res.json()
 }
 
@@ -54,13 +54,13 @@ const getFiles = async () => {
 
 
 // console.log("Checking figma.fileKey:", figma.fileKey)
-figma.ui.postMessage({type: "user", data: getUser()} )
+figma.ui.postMessage({ type: "user", data: getUser() })
 figma.ui.postMessage({ type: 'idd', data: figma.fileKey })
 figma.ui.postMessage({ type: 'load-comment', data: getComments() })
 figma.ui.postMessage({ type: 'load_files', data: getFiles() })
 
 
-figma.ui.onmessage =  (msg: {type: string, count: number}) => {
+figma.ui.onmessage = (msg: { type: string, count: number }) => {
   if (msg.type === 'create-shapes') {
     // This plugin creates rectangles on the screen.
     const numberOfRectangles = msg.count;
@@ -75,6 +75,10 @@ figma.ui.onmessage =  (msg: {type: string, count: number}) => {
     }
     figma.currentPage.selection = nodes;
     figma.viewport.scrollAndZoomIntoView(nodes);
+  }
+
+  if (msg.type === 'fecth_comments') {
+    figma.ui.postMessage({ type: 'load-comment', data: getComments() })
   }
 
   figma.closePlugin();

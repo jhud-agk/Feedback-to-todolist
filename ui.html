@@ -197,6 +197,12 @@
           <p style="text-align: center; margin-top: 20px; font-weight: 700;">Loading comments...</p>
         </div>
       </section>
+
+      <footer class="footer">
+        <button onclick="moveToOngoing()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Move To
+          ongoing</button>
+        <button class="all_btn btn_solid">Export</button>
+      </footer>
     </section>
 
     <!-- for ongoing  -->
@@ -233,6 +239,12 @@
           </div>
         </div> -->
       </section>
+
+      <footer class="footer">
+        <button onclick="completeTask()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
+          complete</button>
+        <button class="all_btn btn_solid">Export</button>
+      </footer>
     </section>
 
     <section id="all_todo" class="tags" style="padding: 15px;">
@@ -251,11 +263,7 @@
     </section>
 
 
-    <footer class="footer">
-      <button onclick="moveToOngoing()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Move To
-        ongoing</button>
-      <button class="all_btn btn_solid">Export</button>
-    </footer>
+
   </div>
 
 
@@ -275,8 +283,8 @@
 
 
     <div style="color: #7F7979;" class="comment_nav_hide comment_nav">
-      <div style="padding:0px 15px; color: #BEBEBE;">
-        <p style="padding: 15px 0px;" class="bottom">Create a title (e.g landing page changes)</p>
+      <div style="padding:0px 15px; color: #3f3f3f;">
+        <p style="padding: 15px 0px;" id="comment" class="bottom">Create a title (e.g landing page changes)</p>
       </div>
 
       <div style="padding: 0px 15px;">
@@ -310,7 +318,7 @@
             style=" display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 50%; padding: 15px 0px;">
             <p id="due_date">Add due date</p>
             <i class="fa-regular fa-calendar-days"></i>
-            <input type="date">
+            <input onchange="addDueDate(this)" type="date" id="dateInput">
           </div>
         </div>
 
@@ -383,32 +391,32 @@
         <p>Today</p>
         <p style="color: #BEBEBE;">an hour ago</p>
       </div>
-      <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
-        <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
-          <img style="height: 28px; width: 28px;  border-radius: 100%;"
-            src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
-        </div>
-        <div>
-          <div style="display: flex; align-items: center; gap: 5px;">
-            <p style="font-weight: 500;">Adam</p>
-            <span style="color: #BEBEBE;">12.09pm</span>
+
+      <div id="child_comments">
+        <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
+          <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+              src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
           </div>
-
-          <p style="margin:8px 0px; color: #7F7979;">For hero section interaction and text scroll please checkout see
-            https://inspirux.com/about/ and https://giats.me/</p>
-          <!-- <p style="color: #7F7979;">Last comment: 2 mins ago</p> -->
+          <div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <p style="font-weight: 500;">Adam</p>
+              <span style="color: #BEBEBE;">12.09pm</span>
+            </div>
+            <p style="margin:8px 0px; color: #7F7979;">For hero section interaction and text scroll please checkout see
+              https://inspirux.com/about/ and https://giats.me/</p>
+            <!-- <p style="color: #7F7979;">Last comment: 2 mins ago</p> -->
+          </div>
         </div>
-
       </div>
-
 
       <div style="padding: 0px 60px; margin-top: 40px;">
-        <input style="width: 100%;" type="text" class="input bottom" placeholder="Type a response" name="" id="">
+        <input style="width: 100%;" type="text" class="input bottom" placeholder="Type a response" name=""
+          id="add_comment">
       </div>
 
-
       <footer class="footer">
-        <button id="reply_btn" class="all_btn btn_solid">Reply to Figma Thread</button>
+        <button onclick="addComment()" id="reply_btn" class="all_btn btn_solid">Reply to Figma Thread</button>
       </footer>
 
     </div>
@@ -426,6 +434,7 @@
   let comments_withfile
   let userInfo
 
+
   let ongoing_tasks
   let selectedTask
   let taskTodo
@@ -434,7 +443,29 @@
 
   const backend_url = "http://localhost:3030/api/v1"
 
-  <!-- page routing  -->
+
+  // add due date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').setAttribute('min', today);
+
+  async function addDueDate(input) {
+    // e.preventDefault()
+    const res = await fetch(`${backend_url}/add-duedate`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+
+        task_id: selectedTask.id,
+        date: input.value
+      }),
+    })
+    await fetchTasksTodo()
+    selectedTask(selectTask.figma_id)
+  }
+
+  // page routing
   function showNextPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'))
     document.getElementById(pageId).classList.add('active')
@@ -468,6 +499,7 @@
     }
   }
 
+  // create todo
   async function createTodo() {
     const todoInput = document.getElementById("todoInput")
     if (todoInput.value.length > 3) {
@@ -501,11 +533,11 @@
     console.log(taskTodo)
     document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
     document.getElementById('todos').innerHTML = taskTodo.map(obj => `
-   <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-    <div onclick="updateTodo('${obj.id}')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
-    <p data-uuid="${obj.id}" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
-  </div>
-`).join("");
+    <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+      <div onclick="updateTodo('${obj.id}')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
+      <p data-uuid="${obj.id}" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
+    </div>
+    `).join("");
 
     const resolved = taskTodo.filter(obj => obj.is_resolved === true)
     const not_resolved = taskTodo.filter(obj => obj.is_resolved === false)
@@ -614,7 +646,7 @@
             </div>
           </div>
           <div>
-            <input id=${c.id} class='all_check' type="checkbox">
+            <input id=${c.id} class='all_check1' type="checkbox">
           </div>
           </div>`).join('')
       const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasks.length})`
@@ -773,7 +805,71 @@
     createTask()
   }
 
+  function completeTask() {
+    const get_checked = document.querySelectorAll('.all_check1')
+    const checked = []
+    get_checked.forEach(checks => {
+      if (checks.checked) {
+        checked.push(checks)
+      }
+    })
 
+    console.log(checked)
+  }
+
+  let comms
+  function getTaskComment(taskId) {
+    const getParent = global_comments.find(obj => obj.id === `${taskId}`)
+    const getChild = global_comments.filter(obj => obj.parent_id === getParent.id)
+    comms = getParent.id
+    document.getElementById('child_comments').innerHTML = getChild.map(obj => `
+        <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
+          <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+              src=${extractDefaultAvatar(obj.user.img_url)} alt="">
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <p style="font-weight: 500;">${obj.user.handle}</p>
+              <span style="color: #BEBEBE;">${dayjs(obj.createdOn).format('YYYY-MM-DD h:mm A')}</span>
+            </div>
+            <p style="margin:8px 0px; color: #7F7979;">${obj.message}</p>
+            <!-- <p style="color: #7F7979;">Last comment: 2 mins ago</p> -->
+          </div>
+        </div>
+    `).join('')
+  }
+
+
+  async function addComment() {
+    let comment = document.getElementById('add_comment').value
+    const res = await fetch(`https://api.figma.com/v1/files/${fileId}/comments`, {
+      headers: {
+        "Content-Type": "application/json",
+        'X-FIGMA-TOKEN': 'figd_oEgvP5aSLyOR0pBG78XEjm9BSAVplrfDaC7zBl6e'
+      },
+      method: "POST",
+      body: JSON.stringify({
+        message: comment,
+        comment_id: comms
+      }),
+    })
+
+    await parent.postMessage({
+      pluginMessage: {
+        type: 'fecth_comments', data: {}
+      }
+    })
+    getTaskComment()
+    comment = ''
+  }
+
+
+
+  function call() {
+
+
+  }
 
   function selectTask(taskId) {
     document.getElementById("show_tag_btn").classList.remove('tags')
@@ -783,12 +879,17 @@
     document.getElementById('task_img').src = extractDefaultAvatar(selectedTask.creator_img)
     document.getElementById('task_created').innerHTML = dayjs(selectedTask.createdOn).format('YYYY-MM-DD h:mm A')
     document.getElementById('task_creator').innerHTML = selectedTask.creator_name
+    document.getElementById('comment').innerHTML = selectedTask.comment
 
     if (selectedTask.due_date !== null) {
-      document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD h:mm A')
+      document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD')
+      document.getElementById('dateInput').classList.add('page')
     }
-    showTags(selectedTask.tags)
+    if (selectedTask.tags.length > 0) {
+      showTags(selectedTask.tags)
+    }
     fetchTasksTodo()
+    getTaskComment(taskId)
   }
 
 
