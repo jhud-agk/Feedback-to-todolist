@@ -33,6 +33,10 @@
 
   }
 
+  .task_todo_l:not(:first-child) {
+    margin-top: 10px;
+  }
+
   .signup_input::placeholder {
     color: #BEBEBE;
   }
@@ -162,7 +166,7 @@
 <body style="overflow: hidden;">
 
   <!-- Page 1 -->
-  <div id="page1" class="first_page page ">
+  <div id="page1" class="first_page page active">
     <h3 style="font-weight: 600; margin-top: 40px;">Import Figma Comments</h3>
     <p style="margin-top: 10px; color: #7F7979;">Connecting your Figma will allow you easily filter/ Search all your
       Figma comments and
@@ -200,7 +204,7 @@
   </div>
 
   <!-- page 3  -->
-  <div style="height: 100%; overflow-x: scroll;" id="page3" class="page active">
+  <div style="height: 100%; overflow-x: scroll;" id="page3" class="page ">
     <div class="nav">
       <div onclick="changePage2Nav(0), commentOverlay(false)" class="header_list active_nav">Figma Comments</div>
       <div onclick="changePage2Nav(1)" class="header_list">Ongoing Tasks</div>
@@ -286,9 +290,30 @@
 
     <!-- all file todo for user -->
     <section id="all_todo" class="tags" style="padding: 15px;">
-      <div class="todo_list">
-        <p style="font-weight: 600;">Title of the comment goes in here</p>
-      </div>
+      <!-- <div class="todo_list">
+        <div style="padding: 10px;" class="bottom">
+          <p style="font-weight: 600;">Title of the comment goes in here</p>
+          <p style="color: #F76063;">Due 2 days ago</p>
+          <div id="todoBar" style="width: 100%; background-color: #EBEBF2; height: 4px; margin: 10px 0px;">
+            <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
+          </div>
+          <p id="" style="color: #7F7979;">0/0 To-do completed (0%)</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 15px;">
+          <input type="text" style="width: 70%;" placeholder="Add a to-do list (e.g add an image)" class="input bottom"
+            name="" id="">
+          <button class="all_btn" style="color: #BEBEBE; padding: 1px 10px; border: #BEBEBE solid 1px;">Add
+            To-do</button>
+        </div>
+        <div class="">
+          <div id="todosss" style="padding: 0px 15px;">
+            <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+              <input type="checkbox" name="" id="">
+              <p>Images must be 1220px by 1000px, landscape.</p>
+            </div>
+          </div>
+        </div>
+      </div> -->
       <!-- <div class="todo_list">
         <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
           <i class="fa-brands fa-figma"></i>
@@ -302,12 +327,7 @@
         </div>
       </div> -->
     </section>
-
-
-
   </div>
-
-
 
   <!-- comment overlay  -->
   <div class="comment_info" id="comment_info">
@@ -321,7 +341,6 @@
         <i style="font-size: 16px; color: #7F7979;" class="fa-solid fa-xmark"></i>
       </div>
     </div>
-
 
     <div style="color: #7F7979;" class="comment_nav_hide comment_nav">
       <div style="padding:0px 15px; color: #3f3f3f;">
@@ -369,7 +388,6 @@
           <p id="t_comment">1 Comment</p>
         </div>
 
-
         <div class="bottom" style="display: flex; gap: 10px; padding: 15px 0px;">
           <i class="fa-solid fa-list"></i>
           <div style="width: 100%;">
@@ -401,7 +419,7 @@
       </div>
 
       <div class="bottom" style="padding: 15px 15px 20px 15px;">
-        <button onclick="createTodo()" class="all_btn btn_solid">Add To-do</button>
+        <button onclick="createTodo('todoInput', selectedTask.figma_id)" class="all_btn btn_solid">Add To-do</button>
       </div>
 
       <div style="width: 100%; padding: 12px 0px;">
@@ -464,7 +482,6 @@
 
   </div>
 </body>
-
 
 
 <script>
@@ -542,9 +559,119 @@
     }
   }
 
+  //fetch ongoing  tasks and load it
+  async function getOngoingTasks(user_id, file_id) {
+    const res = await fetch(`${backend_url}/get-tasks/${user_id}/${file_id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    ongoing_tasks = await res.json()
+    ongoing_tasks = ongoing_tasks.data
+    console.log('task', ongoing_tasks)
+    loadComments()
+    if (ongoing_tasks.length > 0) {
+      const all = ongoing_tasks.filter(obj => obj.is_resolved === false)
+      document.getElementById('page2_sub3').innerHTML = all.map(c =>
+        `<div 
+          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+          <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
+            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+              <img style="height: 28px; width: 28px;  border-radius: 100%;"
+                src=${extractDefaultAvatar(c.creator_img)} alt="">
+            </div>
+            <div>
+              <h3 style="font-weight: 500;">${c.comment}</h3>
+              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
+              <p style="color: #7F7979;">Last comment: ${dayjs(c.createdOn).format('YYYY-MM-DD h:mm A')}</p>
+            </div>
+          </div>
+          <div>
+            <input id=${c.id} class='all_check1' type="checkbox">
+          </div>
+          </div>`).join('')
+      const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasks.length})`
+
+      document.getElementById('all_todo').innerHTML = all.map(c => {
+        const resolved = c.todos.filter(obj => obj.is_resolved === true)
+        const not_resolved = c.todos.filter(obj => obj.is_resolved === false)
+        let percent = 0
+        if (c.todos.length > 0) {
+          percent = (resolved.length / c.todos.length) * 100
+        }
+        return `
+        <div class="todo_list task_todo_l">
+        <div style="padding: 10px;" class="bottom ">
+          <p style="font-weight: 600;">${c.comment}</p>
+          <p style="color: #F76063;">Due 2 days ago</p>
+          <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin: 10px 0px;">
+            <div style="width: ${percent}%; background-color: #37AE6D; height: 4px;"></div>
+          </div>
+          <p style="color: #7F7979;">${resolved.length}/${c.todos.length} To-do completed (${formatNumber(percent)}%)</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding: 0px 15px;">
+          <input id="${c.figma_id}input" type="text" style="width: 70%;" placeholder="Add a to-do list (e.g add an image)" class="input bottom">
+          <button onclick="createTodo('${c.figma_id}input', '${c.figma_id}')" class="all_btn" style="color: #BEBEBE; padding: 1px 10px; border: #BEBEBE solid 1px;">Add To-do</button>
+        </div>
+        <div style="padding: 0px 15px;">
+          ${c.todos.map(td => `
+            <div class="bottom" style="display: flex; padding: 10px 0px; gap: 8px;">
+            <input  onclick="updateTodo('${td.id}')" type="checkbox" ${td.is_resolved ? "checked" : ""}>
+              <p data-uuid="${td.id}" class="${td.is_resolved ? "strike" : ""}">${td.todo}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `
+      }).join('')
+    } else {
+      document.getElementById('page2_sub3').innerHTML = `<div>
+          <p style="text-align: center; margin-top: 20px; font-weight: 700;">No task on file yet!</p>
+        </div>`
+      document.getElementById('all_todo').innerHTML = `<div>
+          <p style="text-align: center; margin-top: 20px; font-weight: 700;">No task on file yet!</p>
+        </div>`
+    }
+  }
+
+  // load all comment from figma
+  async function loadComments() {
+    let filter = comments_withfile.filter(obj =>
+      !ongoing_tasks.some(obj1 => obj.id === obj1.figma_id)
+    );
+    filter = filter.filter(c => c.parent_id === "")
+    console.log('filter', filter)
+    if (filter.length > 0) {
+      document.getElementById('page2_sub2').innerHTML = filter.map(c =>
+        `<div 
+          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+          <div  style="cursor: pointer; display: flex; gap: 10px;">
+            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+              <img style="height: 28px; width: 28px;  border-radius: 100%;"
+                src=${extractDefaultAvatar(c.user.img_url)} alt="">
+            </div>
+            <div>
+              <h3 style="font-weight: 500;">${c.message}</h3>
+              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
+              <p style="color: #7F7979;">Last comment: ${dayjs(c.created_at).format('YYYY-MM-DD h:mm A')}</p>
+            </div>
+          </div>
+          <div>
+            <input id=${c.id} class='all_check' type="checkbox">
+          </div>
+          </div>`).join('')
+      const title = document.getElementById('page2_tt').innerHTML = `Backlog (${filter.filter(c => c.parent_id === "").length})`
+    } else {
+      document.getElementById('page2_sub2').innerHTML = `<div>
+          <p style="text-align: center; margin-top: 20px; font-weight: 700;">No comment on backlog!</p>
+        </div>`
+    }
+  }
+
   // create todo
-  async function createTodo() {
-    const todoInput = document.getElementById("todoInput")
+  async function createTodo(id, taskId) {
+    console.log(id)
+    const todoInput = document.getElementById(id)
     if (todoInput.value.length > 3) {
       const res = await fetch(`${backend_url}/create-todo`, {
         headers: {
@@ -553,7 +680,7 @@
         method: "POST",
         body: JSON.stringify({
           todo: todoInput.value,
-          task_id: selectedTask.figma_id,
+          task_id: taskId,
           user_id: userInfo.figma_id,
           file_id: fileId,
         }),
@@ -561,21 +688,22 @@
       const todo = await res.json()
       todoInput.value = ''
       fetchTasksTodo()
-      fetchFileTodo()
+      await getOngoingTasks(userInfo.id, fileId)
+      // fetchFileTodo()
     }
   }
 
   // fecth todo and change status
   async function fetchTasksTodo() {
-    const res = await fetch(`${backend_url}/get-todo-task/${selectedTask.id}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    const data = await res.json()
-    taskTodo = data.data
+    // const res = await fetch(`${backend_url}/get-todo-task/${selectedTask.id}`, {
+    //  headers: {
+    //   "Content-Type": "application/json",
+    //  },
+    // })
+    // const data = await res.json()
+    taskTodo = ongoing_tasks.find(obj => obj.id === selectedTask.id).todos
     console.log(taskTodo)
-    document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
+    // document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
 
     document.getElementById('todos').innerHTML = taskTodo.map(obj => `
     <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
@@ -603,21 +731,14 @@
     checkedTodo = id
     console.log(checkedTodo)
     await changeTodoStatus(checkedTodo)
-    if (where === 'task') {
-      const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
-      await fetchTasksTodo()
-    } else {
-      const todo = document.querySelector(`[data-uuid="${checkedTodo}1"]`).classList;
-      await fetchFileTodo()
-    }
-
+    const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
+    await getOngoingTasks(userInfo.id, fileId)
+    await fetchTasksTodo()
     // if (todo.contains('strike')) {
     // todo.remove('strike')
     // } else {
     // todo.add('strike')
     //}
-
-
   }
   async function changeTodoStatus(todoid) {
     const res = await fetch(`${backend_url}/change-todo-status`, {
@@ -675,7 +796,6 @@
     }
   })
 
-
   // show comments 
   function commentOverlay(overlayShow) {
     const getOverlay = document.getElementById('comment_info')
@@ -688,138 +808,7 @@
     }
   }
 
-  //fetch ongoing  tasks and load it
-  async function getOngoingTasks(user_id, file_id) {
-    const res = await fetch(`${backend_url}/get-tasks/${user_id}/${file_id}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    ongoing_tasks = await res.json()
-    ongoing_tasks = ongoing_tasks.data
-    console.log('task', ongoing_tasks)
-    loadComments()
-    if (ongoing_tasks.length > 1) {
-      document.getElementById('page2_sub3').innerHTML = ongoing_tasks.filter(obj => obj.is_resolved === false).map(c =>
-        `<div 
-          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
-          <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
-            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
-              <img style="height: 28px; width: 28px;  border-radius: 100%;"
-                src=${extractDefaultAvatar(c.creator_img)} alt="">
-            </div>
-            <div>
-              <h3 style="font-weight: 500;">${c.comment}</h3>
-              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
-              <p style="color: #7F7979;">Last comment: ${dayjs(c.createdOn).format('YYYY-MM-DD h:mm A')}</p>
-            </div>
-          </div>
-          <div>
-            <input id=${c.id} class='all_check1' type="checkbox">
-          </div>
-          </div>`).join('')
-      const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasks.length})`
-    } else {
-      document.getElementById('page2_sub3').innerHTML = `<div>
-          <p style="text-align: center; margin-top: 20px; font-weight: 700;">No task on file yet!</p>
-        </div>`
-    }
-  }
 
-  // load all comment from figma
-  async function loadComments() {
-    let filter = comments_withfile.filter(obj =>
-      !ongoing_tasks.some(obj1 => obj.id === obj1.figma_id)
-    );
-    filter = filter.filter(c => c.parent_id === "")
-    console.log('filter', filter)
-    if (filter.length > 0) {
-      document.getElementById('page2_sub2').innerHTML = filter.map(c =>
-        `<div 
-          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
-          <div  style="cursor: pointer; display: flex; gap: 10px;">
-            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
-              <img style="height: 28px; width: 28px;  border-radius: 100%;"
-                src=${extractDefaultAvatar(c.user.img_url)} alt="">
-            </div>
-            <div>
-              <h3 style="font-weight: 500;">${c.message}</h3>
-              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
-              <p style="color: #7F7979;">Last comment: ${dayjs(c.created_at).format('YYYY-MM-DD h:mm A')}</p>
-            </div>
-          </div>
-          <div>
-            <input id=${c.id} class='all_check' type="checkbox">
-          </div>
-          </div>`).join('')
-      const title = document.getElementById('page2_tt').innerHTML = `Backlog (${filter.filter(c => c.parent_id === "").length})`
-    } else {
-      document.getElementById('page2_sub2').innerHTML = `<div>
-          <p style="text-align: center; margin-top: 20px; font-weight: 700;">No comment on backlog!</p>
-        </div>`
-    }
-  }
-
-  // file todos
-
-
-  window.onmessage = (event) => {
-
-    if (event.data.pluginMessage?.type === 'idd') {
-      const fileId = event.data.pluginMessage.data;
-    }
-
-    if (event.data.pluginMessage.type === "get-comment") {
-      global_comments = event.data.pluginMessage.data.comments;
-    }
-
-    if (event.data.pluginMessage.type === "get-user") {
-      userInfo = event.data.pluginMessage.data;
-      async function createUser() {
-        const res = await fetch(`${backend_url}/create-user`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            figma_id: userInfo.id,
-            figma_email: userInfo.email,
-            figma_handle: userInfo.handle,
-            figma_image: userInfo.img_url
-          }),
-        })
-      }
-      createUser()
-    }
-
-    if (event.data.pluginMessage.type === "get-files") {
-      global_files = event.data.pluginMessage.data.document.children[0].children
-      comments_withfile = global_comments.map(item1 => {
-        const match = global_files.find(item2 => item2.id === item1.client_meta?.node_id);
-        return { ...item1, board_name: match ? match.name : null };
-      });
-
-      async function createFile() {
-        const res = await fetch(`${backend_url}/create-file`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            figma_file_id: fileId,
-            figma_file_key: fileId,
-            figma_name: event.data.pluginMessage.data.name,
-            user_email: userInfo.email
-          }),
-        })
-
-      }
-
-      createFile()
-      getOngoingTasks(userInfo.id, fileId)
-      fetchFileTodo()
-    }
-  };
 
   function check_comments() {
     const getCheck = document.getElementById('check1')
@@ -900,9 +889,7 @@
       const data = await res.json()
       console.log(data)
     }
-
     completeTask()
-
   }
 
   let comms
@@ -928,7 +915,6 @@
     `).join('')
     document.getElementById('comment_no').innerHTML = `Comments (${getChild.length})`
     document.getElementById('t_comment').innerHTML = `${getChild.length} Comments`
-
   }
 
 
@@ -955,13 +941,6 @@
     comment = ''
   }
 
-
-
-  function call() {
-
-
-  }
-
   function selectTask(taskId) {
     document.getElementById("show_tag_btn").classList.remove('tags')
     document.getElementById('show_tags').classList.add('tags')
@@ -978,17 +957,64 @@
     }
     if (selectedTask.tags.length > 0) {
       showTags(selectedTask.tags)
-    } else {
-
     }
     fetchTasksTodo()
     getTaskComment(taskId)
   }
 
+  window.onmessage = (event) => {
+    if (event.data.pluginMessage?.type === 'idd') {
+      const fileId = event.data.pluginMessage.data;
+    }
 
+    if (event.data.pluginMessage.type === "get-comment") {
+      global_comments = event.data.pluginMessage.data.comments;
+    }
 
+    if (event.data.pluginMessage.type === "get-user") {
+      userInfo = event.data.pluginMessage.data;
+      async function createUser() {
+        const res = await fetch(`${backend_url}/create-user`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            figma_id: userInfo.id,
+            figma_email: userInfo.email,
+            figma_handle: userInfo.handle,
+            figma_image: userInfo.img_url
+          }),
+        })
+      }
+      createUser()
+    }
 
-
+    if (event.data.pluginMessage.type === "get-files") {
+      global_files = event.data.pluginMessage.data.document.children[0].children
+      comments_withfile = global_comments.map(item1 => {
+        const match = global_files.find(item2 => item2.id === item1.client_meta?.node_id);
+        return { ...item1, board_name: match ? match.name : null };
+      });
+      async function createFile() {
+        const res = await fetch(`${backend_url}/create-file`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            figma_file_id: fileId,
+            figma_file_key: fileId,
+            figma_name: event.data.pluginMessage.data.name,
+            user_email: userInfo.email
+          }),
+        })
+      }
+      createFile()
+      getOngoingTasks(userInfo.id, fileId)
+      //fetchFileTodo()
+    }
+  };
 
   // helper functions 
   function formatNumber(num) {
@@ -999,7 +1025,6 @@
     const match = url.match(/default=([^&]+)/);
     return match ? decodeURIComponent(match[1]) : url;
   }
-
 </script>
 
 </html>
