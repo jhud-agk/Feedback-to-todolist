@@ -16,7 +16,8 @@
       "https://fonts.gstatic.com",
       "https://cdnjs.cloudflare.com",
       "https://s3-alpha.figma.com",
-      "https://api.figma.com"
+      "https://api.figma.com",
+      "https://res.cloudinary.com"
     ],
     "devAllowedDomains": [
       "http://localhost:3030"
