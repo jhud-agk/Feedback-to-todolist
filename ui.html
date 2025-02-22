@@ -26,6 +26,17 @@
     font-family: 'inter';
   }
 
+  .signup_input {
+    outline: none;
+    width: 100%;
+    padding: 8px;
+
+  }
+
+  .signup_input::placeholder {
+    color: #BEBEBE;
+  }
+
   .page,
   .comment_nav_hide,
   .tags {
@@ -162,9 +173,34 @@
       File</button>
   </div>
 
-
   <!-- page 2  -->
-  <div style="height: 100%; overflow-x: scroll;" id="page2" class="page active">
+  <div style="height: 100%; overflow-x: scroll; padding: 15px;" id="page2" class="page ">
+    <ul style="list-style: decimal; padding: 15px;">
+      <div>
+        <li>Click <span style="font-weight: 600;">Share</span> on this figma file.</li>
+        <img style="margin-top: 13px;" loading="lazy"
+          src="https://res.cloudinary.com/dgrrpoejk/image/upload/v1740042857/others/image2_kppvw0.svg" alt="">
+      </div>
+
+      <div style="margin-top: 20px;">
+        <li>Click on <span style="font-weight: 600;">copy link</span> at the button of the pop up.</li>
+        <img style="margin-top: 13px;" loading="lazy"
+          src="https://res.cloudinary.com/dgrrpoejk/image/upload/v1740042856/others/image_vylpxp.svg" alt="">
+      </div>
+
+      <div style="margin-top: 20px;">
+        <li><span style="font-weight: 600;">Paste</span>Figma link below, and <span
+            style="font-weight: 600;">save</span> to continue.</li>
+        <input style="margin-top: 10px;" placeholder="eg. https://www.figma.com/design/eNDMTZhq...." type="text"
+          class="signup_input" name="" id="">
+      </div>
+      <button style="margin-top: 10px;" onclick="showNextPage('page3')" class="all_btn btn_solid">Save URL</button>
+    </ul>
+
+  </div>
+
+  <!-- page 3  -->
+  <div style="height: 100%; overflow-x: scroll;" id="page3" class="page active">
     <div class="nav">
       <div onclick="changePage2Nav(0), commentOverlay(false)" class="header_list active_nav">Figma Comments</div>
       <div onclick="changePage2Nav(1)" class="header_list">Ongoing Tasks</div>
@@ -241,25 +277,30 @@
       </section>
 
       <footer class="footer">
-        <button onclick="completeTask()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
+        <button onclick="moveToComplete()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
           complete</button>
         <button class="all_btn btn_solid">Export</button>
       </footer>
     </section>
 
+
+    <!-- all file todo for user -->
     <section id="all_todo" class="tags" style="padding: 15px;">
       <div class="todo_list">
+        <p style="font-weight: 600;">Title of the comment goes in here</p>
+      </div>
+      <!-- <div class="todo_list">
         <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
           <i class="fa-brands fa-figma"></i>
-          <p id="todoLen">To-do Items (0)</p>
+          <p id="todoLen">Title of the comment goes in here</p>
         </div>
         <div id="todosss" style="padding: 0px 15px;">
-          <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-                    <input type="checkbox" name="" id="">
-                    <p>Images must be 1220px by 1000px, landscape.</p>
-                  </div> -->
+          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+            <input type="checkbox" name="" id="">
+            <p>Images must be 1220px by 1000px, landscape.</p>
+          </div>
         </div>
-      </div>
+      </div> -->
     </section>
 
 
@@ -274,7 +315,7 @@
       <div class="nav">
         <div onclick="changeNavOverlay(0)" class="header_listc active_navc">Overview</div>
         <div id="todo_nav" onclick="changeNavOverlay(1)" class="header_listc">To-do (0)</div>
-        <div onclick="changeNavOverlay(2)" class="header_listc">Comments (1)</div>
+        <div onclick="changeNavOverlay(2)" id="comment_no" class="header_listc">Comments (1)</div>
       </div>
       <div style="padding: 10px;" onclick="commentOverlay(false)">
         <i style="font-size: 16px; color: #7F7979;" class="fa-solid fa-xmark"></i>
@@ -325,7 +366,7 @@
         <div class="bottom"
           style="display: flex; align-items: center; gap: 15px; width: 100%; margin-top: 30px; padding: 15px 0px;">
           <i class="fa-regular fa-comment"></i>
-          <p>1 Comment</p>
+          <p id="t_comment">1 Comment</p>
         </div>
 
 
@@ -372,7 +413,7 @@
       <div class="todo_list">
         <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
           <i class="fa-brands fa-figma"></i>
-          <p id="todoLen">To-do Items (0)</p>
+          <p id="todoLen1">To-do Items (0)</p>
         </div>
         <div id="todos" style="padding: 0px 15px;">
           <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
@@ -496,6 +537,8 @@
                 <i onclick="addTag('${obj}')" style="font-size: 14px;" class="fa-solid fa-xmark"></i>
               </div>
           `).join('')
+    } else {
+      document.getElementById('tag_con').innerHTML = ''
     }
   }
 
@@ -518,6 +561,7 @@
       const todo = await res.json()
       todoInput.value = ''
       fetchTasksTodo()
+      fetchFileTodo()
     }
   }
 
@@ -532,9 +576,10 @@
     taskTodo = data.data
     console.log(taskTodo)
     document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
+
     document.getElementById('todos').innerHTML = taskTodo.map(obj => `
     <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-      <div onclick="updateTodo('${obj.id}')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
+      <div onclick="updateTodo('${obj.id}', 'task')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
       <p data-uuid="${obj.id}" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
     </div>
     `).join("");
@@ -545,6 +590,7 @@
     if (taskTodo.length > 0) {
       percent = (resolved.length / taskTodo.length) * 100
     }
+    document.getElementById('todoLen1').innerHTML = `To-do Items (${not_resolved.length})`
     document.getElementById("todo_nav").innerHTML = `To-do (${not_resolved.length})`
     document.getElementById('todoCom').innerHTML = `${resolved.length}/${taskTodo.length} To-do completed (${percent !== 0 ? formatNumber(percent) : '0'})%`
     document.getElementById('todoBar').innerHTML = `<div style="width: ${percent}%; background-color: #37AE6D; height: 4px;"></div>`
@@ -553,28 +599,51 @@
   }
 
   let checkedTodo
-  async function updateTodo(id) {
+  async function updateTodo(id, where) {
     checkedTodo = id
+    console.log(checkedTodo)
     await changeTodoStatus(checkedTodo)
-    const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
+    if (where === 'task') {
+      const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
+      await fetchTasksTodo()
+    } else {
+      const todo = document.querySelector(`[data-uuid="${checkedTodo}1"]`).classList;
+      await fetchFileTodo()
+    }
+
     // if (todo.contains('strike')) {
     // todo.remove('strike')
     // } else {
     // todo.add('strike')
     //}
-    await fetchTasksTodo()
+
+
   }
-  async function changeTodoStatus(checkedTodo) {
+  async function changeTodoStatus(todoid) {
     const res = await fetch(`${backend_url}/change-todo-status`, {
       headers: {
         "Content-Type": "application/json",
       },
       method: "PATCH",
       body: JSON.stringify({
-        todo_id: checkedTodo,
+        todo_id: todoid,
         user_id: userInfo.id
       }),
     })
+  }
+
+  // fetch file todos
+  async function fetchFileTodo() {
+    const res = await fetch(`${backend_url}/get-todo-file/${fileId}/${userInfo.id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    const data = await res.json()
+    document.getElementById('todosss').innerHTML = data.data.map(obj => `<div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
+            <input onclick="updateTodo('${obj.id}', 'file')" type="checkbox" name="" id="" ${obj.is_resolved ? "checked" : ""}>
+            <p data-uuid="${obj.id}1" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
+          </div>`).join('')
   }
 
   // add tag
@@ -631,7 +700,7 @@
     console.log('task', ongoing_tasks)
     loadComments()
     if (ongoing_tasks.length > 1) {
-      document.getElementById('page2_sub3').innerHTML = ongoing_tasks.map(c =>
+      document.getElementById('page2_sub3').innerHTML = ongoing_tasks.filter(obj => obj.is_resolved === false).map(c =>
         `<div 
           style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
           <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
@@ -691,6 +760,8 @@
     }
   }
 
+  // file todos
+
 
   window.onmessage = (event) => {
 
@@ -746,7 +817,7 @@
 
       createFile()
       getOngoingTasks(userInfo.id, fileId)
-
+      fetchFileTodo()
     }
   };
 
@@ -805,7 +876,7 @@
     createTask()
   }
 
-  function completeTask() {
+  function moveToComplete() {
     const get_checked = document.querySelectorAll('.all_check1')
     const checked = []
     get_checked.forEach(checks => {
@@ -813,8 +884,25 @@
         checked.push(checks)
       }
     })
+    console.log('see', userInfo)
+    async function completeTask() {
+      const res = await fetch(`${backend_url}/change-status`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PATCH",
+        body: JSON.stringify(checked.flat().map((comms) => ({
+          user_id: userInfo.id,
+          task_id: comms.id
+        }))),
+      })
+      await getOngoingTasks(userInfo.id, fileId)
+      const data = await res.json()
+      console.log(data)
+    }
 
-    console.log(checked)
+    completeTask()
+
   }
 
   let comms
@@ -838,6 +926,9 @@
           </div>
         </div>
     `).join('')
+    document.getElementById('comment_no').innerHTML = `Comments (${getChild.length})`
+    document.getElementById('t_comment').innerHTML = `${getChild.length} Comments`
+
   }
 
 
@@ -887,6 +978,8 @@
     }
     if (selectedTask.tags.length > 0) {
       showTags(selectedTask.tags)
+    } else {
+
     }
     fetchTasksTodo()
     getTaskComment(taskId)
