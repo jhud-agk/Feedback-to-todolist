@@ -33,6 +33,17 @@
 
   }
 
+  .black_bg {
+    position: fixed;
+    background-color: #00000057;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0px;
+    display: block !important;
+    z-index: 5;
+  }
+
   .task_todo_l:not(:first-child) {
     margin-top: 10px;
   }
@@ -128,7 +139,6 @@
     justify-content: end;
     padding: 15px;
     border-top: 1px solid #EBEBF2;
-    position: fixed;
     bottom: 0px;
     width: 93%;
     background-color: white;
@@ -146,10 +156,12 @@
     height: 100%;
     transition: all 0.6s;
     top: 700px;
+    z-index: 7;
   }
 
   .comment_info_show {
-    top: 40px !important;
+    top: 30px !important;
+    display: block;
   }
 
   .todo_list {
@@ -172,8 +184,9 @@
       Figma comments and
       more. you can add custom
       statuses, to-do-list, due dates and much more, you will only need to do this once per Figma file.</p>
-
-    <button onclick="showNextPage('page2')" class="all_btn btn_solid" style="margin-top: 30px;">Connect This Figma
+    <input style="margin-top: 10px;" placeholder="Enter your access token" type="text" class="signup_input" name=""
+      id="access_id">
+    <button onclick="getAccessToken()" class="all_btn btn_solid" style="margin-top: 30px;">Connect This Figma
       File</button>
   </div>
 
@@ -196,9 +209,9 @@
         <li><span style="font-weight: 600;">Paste</span>Figma link below, and <span
             style="font-weight: 600;">save</span> to continue.</li>
         <input style="margin-top: 10px;" placeholder="eg. https://www.figma.com/design/eNDMTZhq...." type="text"
-          class="signup_input" name="" id="">
+          class="signup_input" name="" id="link_id">
       </div>
-      <button style="margin-top: 10px;" onclick="showNextPage('page3')" class="all_btn btn_solid">Save URL</button>
+      <button style="margin-top: 10px;" onclick="getFileLink()" class="all_btn btn_solid">Save URL</button>
     </ul>
 
   </div>
@@ -238,10 +251,10 @@
         </div>
       </section>
 
-      <footer class="footer">
+      <footer style="position: fixed;" class="footer">
         <button onclick="moveToOngoing()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Move To
           ongoing</button>
-        <button class="all_btn btn_solid">Export</button>
+        <button onclick="exportOverlay(true)" class="all_btn btn_solid">Export</button>
       </footer>
     </section>
 
@@ -280,7 +293,7 @@
         </div> -->
       </section>
 
-      <footer class="footer">
+      <footer style="position: fixed;" class="footer">
         <button onclick="moveToComplete()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
           complete</button>
         <button class="all_btn btn_solid">Export</button>
@@ -330,6 +343,7 @@
   </div>
 
   <!-- comment overlay  -->
+  <div id="bg_overlay" class="page"></div>
   <div class="comment_info" id="comment_info">
     <div style="display: flex; align-items: center; justify-content: space-between;">
       <div class="nav">
@@ -474,12 +488,51 @@
           id="add_comment">
       </div>
 
-      <footer class="footer">
+      <footer style="position: fixed;" class="footer">
         <button onclick="addComment()" id="reply_btn" class="all_btn btn_solid">Reply to Figma Thread</button>
       </footer>
 
     </div>
 
+  </div>
+
+  <!-- export overlay  -->'
+
+  <div id="figma_overlay" class="comment_info">
+    <div style="height: 95%; width: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between;">
+          <p style="padding: 15px;" class="bottom">Export Tasks</p>
+          <div style="padding: 10px;" onclick="exportOverlay(false)">
+            <i style="font-size: 16px; color: #7F7979;" class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
+
+        <div style="padding: 15px;">
+          <div style="display: flex; gap: 7px;">
+            <input type="checkbox" id="export">
+            <label for="jira">Jira</label>
+          </div>
+          <div style="display: flex; gap: 7px; margin-top: 10px;">
+            <input type="checkbox" id="export">
+            <label for="trello">Trello</label>
+          </div>
+          <div style="display: flex; gap: 7px; margin-top: 10px;">
+            <input type="checkbox" id="export">
+            <label for="pdf">PDF</label>
+          </div>
+          <div style="display: flex; gap: 7px; margin-top: 10px;">
+            <input type="checkbox" id="export">
+            <label for="json">JSON/ CSV</label>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <button onclick="exportOverlay(true)" id="reply_btn" class="all_btn btn_solid">Export</button>
+      </footer>
+
+    </div>
   </div>
 </body>
 
@@ -497,31 +550,9 @@
   let selectedTask
   let taskTodo
 
-  let fileId = "eNDMTZhqPS1wYSkLMSaovC"
+  let fileId
 
   const backend_url = "http://localhost:3030/api/v1"
-
-
-  // add due date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('dateInput').setAttribute('min', today);
-
-  async function addDueDate(input) {
-    // e.preventDefault()
-    const res = await fetch(`${backend_url}/add-duedate`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-
-        task_id: selectedTask.id,
-        date: input.value
-      }),
-    })
-    await fetchTasksTodo()
-    selectedTask(selectTask.figma_id)
-  }
 
   // page routing
   function showNextPage(pageId) {
@@ -542,6 +573,18 @@
     document.querySelectorAll('.comment_nav_hide').forEach(nav => nav.classList.remove('comment_nav'))
     document.querySelectorAll('.comment_nav_hide')[num].classList.add('comment_nav')
   }
+
+  function getAccessToken() {
+    const access_token = document.getElementById('access_id').value
+    parent.postMessage({ pluginMessage: { type: 'access_token', data: access_token } }, "*")
+  }
+
+  function getFileLink() {
+    const file_link = document.getElementById('link_id').value
+    parent.postMessage({ pluginMessage: { type: 'comments', data: getFigmaFileKey(file_link) } }, "*")
+    parent.postMessage({ pluginMessage: { type: 'file_id', data: getFigmaFileKey(file_link) } }, "*")
+  }
+
 
   function showTags(tags) {
     document.getElementById("show_tag_btn").classList.add('tags')
@@ -799,11 +842,28 @@
   // show comments 
   function commentOverlay(overlayShow) {
     const getOverlay = document.getElementById('comment_info')
+    const bg_overlay = document.getElementById("bg_overlay")
     if (overlayShow) {
       getOverlay.classList.add('comment_info_show')
-      overlayShow = true
+      bg_overlay.classList.add('black_bg')
     } else {
       getOverlay.classList.remove('comment_info_show')
+      bg_overlay.classList.remove('black_bg')
+      changeNavOverlay(0)
+    }
+  }
+
+  // show export
+  function exportOverlay(overlayShow) {
+    const overlay = document.getElementById('figma_overlay')
+    const bg_overlay = document.getElementById("bg_overlay")
+    if (overlayShow) {
+      overlay.classList.add('comment_info_show')
+      bg_overlay.classList.add('black_bg')
+      overlayShow = true
+    } else {
+      overlay.classList.remove('comment_info_show')
+      bg_overlay.classList.remove('black_bg')
       overlayShow = false
     }
   }
@@ -892,11 +952,13 @@
     completeTask()
   }
 
-  let comms
+
+  // adding comments to figma tasks
+  let comment_parent_id
   function getTaskComment(taskId) {
     const getParent = global_comments.find(obj => obj.id === `${taskId}`)
     const getChild = global_comments.filter(obj => obj.parent_id === getParent.id)
-    comms = getParent.id
+    comment_parent_id = getParent.id
     document.getElementById('child_comments').innerHTML = getChild.map(obj => `
         <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
           <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
@@ -918,26 +980,10 @@
   }
 
 
-  async function addComment() {
+  function addComment() {
     let comment = document.getElementById('add_comment').value
-    const res = await fetch(`https://api.figma.com/v1/files/${fileId}/comments`, {
-      headers: {
-        "Content-Type": "application/json",
-        'X-FIGMA-TOKEN': 'figd_oEgvP5aSLyOR0pBG78XEjm9BSAVplrfDaC7zBl6e'
-      },
-      method: "POST",
-      body: JSON.stringify({
-        message: comment,
-        comment_id: comms
-      }),
-    })
-
-    await parent.postMessage({
-      pluginMessage: {
-        type: 'fecth_comments', data: {}
-      }
-    })
-    getTaskComment()
+    parent.postMessage({ pluginMessage: { type: 'add_comment', data: { comment: comment, commss: comment_parent_id, fileId } } }, "*")
+    // getTaskComment(selectedTask.figma_id)
     comment = ''
   }
 
@@ -962,6 +1008,28 @@
     getTaskComment(taskId)
   }
 
+  // add due date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').setAttribute('min', today);
+
+  async function addDueDate(input) {
+    // e.preventDefault()
+    const res = await fetch(`${backend_url}/add-duedate`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+
+        task_id: selectedTask.id,
+        date: input.value
+      }),
+    })
+    await fetchTasksTodo()
+    selectedTask(selectTask.figma_id)
+  }
+
+
   window.onmessage = (event) => {
     if (event.data.pluginMessage?.type === 'idd') {
       const fileId = event.data.pluginMessage.data;
@@ -969,6 +1037,12 @@
 
     if (event.data.pluginMessage.type === "get-comment") {
       global_comments = event.data.pluginMessage.data.comments;
+      getTaskComment(selectedTask.figma_id)
+    }
+
+    if (event.data.pluginMessage.type === "comment-added") {
+      global_comments = event.data.pluginMessage.data;
+      getTaskComment(selectedTask.figma_id)
     }
 
     if (event.data.pluginMessage.type === "get-user") {
@@ -988,10 +1062,14 @@
         })
       }
       createUser()
+      showNextPage('page2')
+
     }
 
     if (event.data.pluginMessage.type === "get-files") {
-      global_files = event.data.pluginMessage.data.document.children[0].children
+      // console.log(event.data.pluginMessage.data.document.children[0].children)
+      global_files = event.data.pluginMessage.data.data.document.children[0].children
+      fileId = event.data.pluginMessage.data.fileId
       comments_withfile = global_comments.map(item1 => {
         const match = global_files.find(item2 => item2.id === item1.client_meta?.node_id);
         return { ...item1, board_name: match ? match.name : null };
@@ -1005,13 +1083,14 @@
           body: JSON.stringify({
             figma_file_id: fileId,
             figma_file_key: fileId,
-            figma_name: event.data.pluginMessage.data.name,
+            figma_name: event.data.pluginMessage.data.data.name,
             user_email: userInfo.email
           }),
         })
       }
       createFile()
       getOngoingTasks(userInfo.id, fileId)
+      showNextPage('page3')
       //fetchFileTodo()
     }
   };
@@ -1024,6 +1103,11 @@
   function extractDefaultAvatar(url) {
     const match = url.match(/default=([^&]+)/);
     return match ? decodeURIComponent(match[1]) : url;
+  }
+
+  function getFigmaFileKey(url) {
+    const match = url.match(/design\/([a-zA-Z0-9]+)\//);
+    return match ? match[1] : null;
   }
 </script>
 
