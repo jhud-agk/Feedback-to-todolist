@@ -4,8 +4,7 @@
 figma.showUI(__html__, { width: 450, height: 700 });
 
 // const backend_url = "http://localhost:3030/api/v1"
-// figd_sqfzqnubhXhM535K_XSg_nx2QaEFY70SfpKep7ye
-// figd_i0CS13S7YJuj_xfJHS5lwLygpE3Sy98bJs_SZ_L0
+// 
 // eNDMTZhqPS1wYSkLMSaovC
 let access_token: string
 
@@ -24,17 +23,24 @@ const getComments = async (fileId: string) => {
 }
 
 const getUser = async () => {
-  const res = await fetch(`https://api.figma.com/v1/me`, {
-    headers: {
-      "Content-Type": "application/json",
-      'X-FIGMA-TOKEN': access_token
-    },
-  })
+  try {
+    const res = await fetch(`https://api.figma.com/v1/me`, {
+      headers: {
+        "Content-Type": "application/json",
+        'X-FIGMA-TOKEN': access_token
+      },
+    })
+    const data = await res.json()
 
-  console.log('here', await res.json())
-  figma.ui.postMessage({ type: 'get-user', data: await res.json() })
+    if (data.err) {
+      throw new Error()
+    }
+    figma.ui.postMessage({ type: 'get-user', data })
+    return await data
+  } catch (e) {
+    console.log('An error occur, check token provided!')
+  }
 
-  return await res.json()
 }
 
 const getFiles = async (fileId: string) => {
@@ -84,11 +90,26 @@ async function addComment(comment: string, comms: string, fileId: string) {
 // figma.ui.postMessage({ type: 'load_files', data: getFiles() })
 
 
+async function checkToken() {
+  const value = await figma.clientStorage.getAsync("token");
+  if (value.length > 0) {
+    console.log(value)
+    access_token = value
+    await getUser()
+  }
+}
+
+checkToken()
+
+
 figma.ui.onmessage = async (msg: { type: string, data: any }) => {
 
   if (msg.type === 'access_token') {
     access_token = msg.data as string
     await figma.clientStorage.setAsync('token', access_token)
+    const value = await figma.clientStorage.getAsync("token");
+    console.log(access_token, 'access!!!!');
+    console.log(value, 'here!!!!');
     // figma.ui.postMessage({ type: "user", data: getUser() })
     await getUser()
   }

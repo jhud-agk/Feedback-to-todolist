@@ -12,7 +12,10 @@
   <!-- <script src="https://kit.fontawesome.com/0d24a6d486.js" crossorigin="anonymous"></script> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <!-- <i class="fa-solid fa-circle-check"></i> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.9/dayjs.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.9/dayjs.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <style>
@@ -91,6 +94,7 @@
   .nav {
     display: flex;
     border-bottom: 1px solid #EBEBF2;
+    width: 100%;
   }
 
   .active_nav,
@@ -206,34 +210,63 @@
       </div>
 
       <div style="margin-top: 20px;">
-        <li><span style="font-weight: 600;">Paste</span>Figma link below, and <span
+        <li><span style="font-weight: 600;">Paste</span> Figma link below, and <span
             style="font-weight: 600;">save</span> to continue.</li>
         <input style="margin-top: 10px;" placeholder="eg. https://www.figma.com/design/eNDMTZhq...." type="text"
           class="signup_input" name="" id="link_id">
       </div>
       <button style="margin-top: 10px;" onclick="getFileLink()" class="all_btn btn_solid">Save URL</button>
     </ul>
-
   </div>
 
+
+  <!-- page 3 -->
+  <!-- <div id="page3" class="page first_page">
+    <ul style="margin-left: 10px;">
+      <li>
+        <p style="font-weight: 600;">Continue from where you stopped <span id="namename">Pelumi</span></p>
+      </li>
+    </ul>
+    <div style="margin-top: 10px;">
+      <p style="margin-top: 5px;">Do this</p>
+      <p style="margin-top: 5px;">Do this</p>
+      <p style="margin-top: 5px;">Do this</p>
+      <p style="margin-top: 5px;">Do this</p>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <li>
+        <span>Or start a new Task</span>
+      </li>
+
+      <li><span style="font-weight: 600;">Paste</span>Figma link below, and <span style="font-weight: 600;">save</span>
+        to
+        continue.</li>
+      <input style="margin-top: 10px;" placeholder="eg. https://www.figma.com/design/eNDMTZhq...." type="text"
+        class="signup_input" name="" id="link_id">
+    </div>
+    <button style="margin-top: 10px;" onclick="getFileLink()" class="all_btn btn_solid">Save URL</button>
+  </div> -->
+
   <!-- page 3  -->
-  <div style="height: 100%; overflow-x: scroll;" id="page3" class="page ">
+  <div style="height: 100%; overflow-x: scroll;" id="page4" class="page ">
     <div class="nav">
       <div onclick="changePage2Nav(0), commentOverlay(false)" class="header_list active_nav">Figma Comments</div>
       <div onclick="changePage2Nav(1)" class="header_list">Ongoing Tasks</div>
       <div onclick="changePage2Nav(2), commentOverlay(false)" class="header_list">My To-do List</div>
     </div>
 
-    <div class="search_con">
-      <div class="search">
-        <i style="font-size: 20px; color: #BEBEBE; padding-left: 15px;" class="fa-solid fa-magnifying-glass"></i>
-        <input class="input" type="text" placeholder="Search a comment or keyword ...">
-        <img src="/assets/search.svg" alt="">
-      </div>
-    </div>
+
 
     <!-- for all comments -->
     <section id="all_comments" class="tags tag_active">
+      <div class="search_con">
+        <div class="search">
+          <i style="font-size: 20px; color: #BEBEBE; padding-left: 15px;" class="fa-solid fa-magnifying-glass"></i>
+          <input class="input" id="comment_search" type="text" placeholder="Search a comment or keyword ...">
+          <img src="/assets/search.svg" alt="">
+        </div>
+      </div>
       <section id="page2_sub1" class="page2_sub bottom"
         style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
         <div class="" style="display: flex; align-items: center; font-weight: 500; gap: 8px;">
@@ -260,85 +293,39 @@
 
     <!-- for ongoing  -->
     <section id="all_ongoing" class="tags">
-      <section id="page2_sub1" class="page2_sub bottom"
-        style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
-        <div class="" style="display: flex; align-items: center; font-weight: 500; gap: 8px;">
-          <i class="fa-brands fa-figma"></i>
-          <p id="page2_ttt">Ongoing Tasks (0)</p>
+      <div class="search_con">
+        <div class="search">
+          <i style="font-size: 20px; color: #BEBEBE; padding-left: 15px;" class="fa-solid fa-magnifying-glass"></i>
+          <input class="input" type="text" id="task_search" placeholder="Search a comment or keyword ...">
+          <img src="/assets/search.svg" alt="">
         </div>
-        <div>
-          <input onchange="check_ongoing()" id="check11" type="checkbox">
-        </div>
-      </section>
-
-      <section id="page2_sub3" style="margin-bottom: 80px;" class="page2_sub">
-        <div>
-          <p style="text-align: center; margin-top: 20px; font-weight: 700;">Loading tasks...</p>
-        </div>
-        <!-- <div style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
-          <div onclick="showNextPage('page3'), changePage2Nav(3)" style="cursor: pointer; display: flex; gap: 10px;">
-            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
-              <img style="height: 28px; width: 28px;  border-radius: 100%;"
-                src="https://s3-alpha.figma.com/static/user_p_v2.png" alt="">
-            </div>
-            <div>
-              <h3 style="font-weight: 500;">For hero section interaction and text scroll see ...</h3>
-              <p style="margin:8px 0px; color: #7F7979;">Landing page</p>
-              <p style="color: #7F7979;">Last comment: 2 mins ago</p>
-            </div>
+        <section id="page2_sub1" class="page2_sub bottom"
+          style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
+          <div class="" style="display: flex; align-items: center; font-weight: 500; gap: 8px;">
+            <i class="fa-brands fa-figma"></i>
+            <p id="page2_ttt">Ongoing Tasks (0)</p>
           </div>
           <div>
-            <input type="checkbox" class="all_check1">
+            <input onchange="check_ongoing()" id="check11" type="checkbox">
           </div>
-        </div> -->
-      </section>
+        </section>
 
-      <footer style="position: fixed;" class="footer">
-        <button onclick="moveToComplete()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
-          complete</button>
-        <button class="all_btn btn_solid">Export</button>
-      </footer>
+        <section id="page2_sub3" style="margin-bottom: 80px;" class="page2_sub">
+          <div>
+            <p style="text-align: center; margin-top: 20px; font-weight: 700;">Loading tasks...</p>
+          </div>
+        </section>
+
+        <footer style="position: fixed;" class="footer">
+          <button onclick="moveToComplete()" style="cursor: pointer;" id="action_btn" class="all_btn btn_stroke">Mark as
+            complete</button>
+          <button onclick="exportOverlay(true)" class="all_btn btn_solid">Export</button>
+        </footer>
     </section>
 
 
     <!-- all file todo for user -->
     <section id="all_todo" class="tags" style="padding: 15px;">
-      <!-- <div class="todo_list">
-        <div style="padding: 10px;" class="bottom">
-          <p style="font-weight: 600;">Title of the comment goes in here</p>
-          <p style="color: #F76063;">Due 2 days ago</p>
-          <div id="todoBar" style="width: 100%; background-color: #EBEBF2; height: 4px; margin: 10px 0px;">
-            <div style="width: 10%; background-color: #37AE6D; height: 4px;"></div>
-          </div>
-          <p id="" style="color: #7F7979;">0/0 To-do completed (0%)</p>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 15px;">
-          <input type="text" style="width: 70%;" placeholder="Add a to-do list (e.g add an image)" class="input bottom"
-            name="" id="">
-          <button class="all_btn" style="color: #BEBEBE; padding: 1px 10px; border: #BEBEBE solid 1px;">Add
-            To-do</button>
-        </div>
-        <div class="">
-          <div id="todosss" style="padding: 0px 15px;">
-            <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-              <input type="checkbox" name="" id="">
-              <p>Images must be 1220px by 1000px, landscape.</p>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!-- <div class="todo_list">
-        <div style="display: flex; align-items: center; gap: 7px; padding: 13px;" class="bottom">
-          <i class="fa-brands fa-figma"></i>
-          <p id="todoLen">Title of the comment goes in here</p>
-        </div>
-        <div id="todosss" style="padding: 0px 15px;">
-          <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-            <input type="checkbox" name="" id="">
-            <p>Images must be 1220px by 1000px, landscape.</p>
-          </div>
-        </div>
-      </div> -->
     </section>
   </div>
 
@@ -358,7 +345,8 @@
 
     <div style="color: #7F7979;" class="comment_nav_hide comment_nav">
       <div style="padding:0px 15px; color: #3f3f3f;">
-        <p style="padding: 15px 0px;" id="comment" class="bottom">Create a title (e.g landing page changes)</p>
+        <!-- <p style="padding: 15px 0px;" id="comment" class="bottom">Create a title (e.g landing page changes)</p> -->
+        <input style="width: 100%;" value="lllll" id="commentt_input" type="text" class="input bottom">
       </div>
 
       <div style="padding: 0px 15px;">
@@ -448,10 +436,6 @@
           <p id="todoLen1">To-do Items (0)</p>
         </div>
         <div id="todos" style="padding: 0px 15px;">
-          <!-- <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
-            <input type="checkbox" name="" id="">
-            <p>Images must be 1220px by 1000px, landscape.</p>
-          </div> -->
         </div>
       </div>
 
@@ -464,7 +448,9 @@
         <p>Today</p>
         <p style="color: #BEBEBE;">an hour ago</p>
       </div>
+      <div id="main_main">
 
+      </div>
       <div id="child_comments">
         <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
           <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
@@ -496,7 +482,7 @@
 
   </div>
 
-  <!-- export overlay  -->'
+  <!-- export overlay  -->
 
   <div id="figma_overlay" class="comment_info">
     <div style="height: 95%; width: 100%; display: flex; flex-direction: column; justify-content: space-between;">
@@ -510,26 +496,26 @@
 
         <div style="padding: 15px;">
           <div style="display: flex; gap: 7px;">
-            <input type="checkbox" id="export">
-            <label for="jira">Jira</label>
+            <input disabled onclick="checkOnlyOne(this)" type="checkbox" id="Jira">
+            <label style="color: rgba(0, 0, 0, 0.387);" for="jira">Jira</label>
           </div>
           <div style="display: flex; gap: 7px; margin-top: 10px;">
-            <input type="checkbox" id="export">
-            <label for="trello">Trello</label>
+            <input disabled onclick="checkOnlyOne(this)" type="checkbox" id="Trello">
+            <label style="color: rgba(0, 0, 0, 0.387);" for="trello">Trello</label>
           </div>
           <div style="display: flex; gap: 7px; margin-top: 10px;">
-            <input type="checkbox" id="export">
+            <input onclick="checkOnlyOne(this)" type="checkbox" id="PDF">
             <label for="pdf">PDF</label>
           </div>
           <div style="display: flex; gap: 7px; margin-top: 10px;">
-            <input type="checkbox" id="export">
+            <input onclick="checkOnlyOne(this)" onchange="" type="checkbox" id="csv">
             <label for="json">JSON/ CSV</label>
           </div>
         </div>
       </div>
 
       <footer class="footer">
-        <button onclick="exportOverlay(true)" id="reply_btn" class="all_btn btn_solid">Export</button>
+        <button onclick="exportTask()" id="reply_btn" class="all_btn btn_solid">Export</button>
       </footer>
 
     </div>
@@ -538,21 +524,23 @@
 
 
 <script>
-
-
+  dayjs.extend(dayjs_plugin_relativeTime);
   let global_comments
   let global_files
   let comments_withfile
   let userInfo
 
+  let filterComments
 
   let ongoing_tasks
+  let ongoing_tasksFils
   let selectedTask
   let taskTodo
 
   let fileId
 
   const backend_url = "http://localhost:3030/api/v1"
+  //const backend_url = "https://feedback-aggregator-backend-production.up.railway.app/api/v1"
 
   // page routing
   function showNextPage(pageId) {
@@ -585,7 +573,6 @@
     parent.postMessage({ pluginMessage: { type: 'file_id', data: getFigmaFileKey(file_link) } }, "*")
   }
 
-
   function showTags(tags) {
     document.getElementById("show_tag_btn").classList.add('tags')
     document.getElementById('show_tags').classList.remove('tags')
@@ -611,30 +598,40 @@
     })
     ongoing_tasks = await res.json()
     ongoing_tasks = ongoing_tasks.data
-    console.log('task', ongoing_tasks)
+    ongoing_tasksFils = ongoing_tasks
     loadComments()
-    if (ongoing_tasks.length > 0) {
-      const all = ongoing_tasks.filter(obj => obj.is_resolved === false)
-      document.getElementById('page2_sub3').innerHTML = all.map(c =>
-        `<div 
-          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
-          <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
-            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
-              <img style="height: 28px; width: 28px;  border-radius: 100%;"
-                src=${extractDefaultAvatar(c.creator_img)} alt="">
-            </div>
-            <div>
-              <h3 style="font-weight: 500;">${c.comment}</h3>
-              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
-              <p style="color: #7F7979;">Last comment: ${dayjs(c.createdOn).format('YYYY-MM-DD h:mm A')}</p>
-            </div>
-          </div>
-          <div>
-            <input id=${c.id} class='all_check1' type="checkbox">
-          </div>
-          </div>`).join('')
-      const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasks.length})`
+    if (ongoing_tasksFils.length > 0) {
+      const all = ongoing_tasksFils.filter(obj => obj.is_resolved === false)
+      document.getElementById('page2_sub3').innerHTML = all.map(c => {
+        const dayss = dayjs(c.due_date).diff(new Date(), 'days')
+        let passed
+        if (dayss < 0) {
+          passed = true
+        } else {
+          passed = false
+        }
+        return `<div style="padding: 15px;" class="bottom">
+    <p style=" display: ${c.due_date === null ? 'none' : ''}; margin-left: 38px; font-weight: 500; padding:5px 0px ; color: ${passed ? "F76063" : "37AE6D"}">Due ${Math.abs(dayss)} ${!passed ? 'days time' : 'days ago'}</p>
+    <div style="display: flex; justify-content: space-between;" >
+      <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
+        <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+          <img style="height: 28px; width: 28px;  border-radius: 100%;" src=${extractDefaultAvatar(c.creator_img)}
+            alt="">
+        </div>
+        <div>
+          <h3 style="font-weight: 500;">${c.comment}</h3>
+          <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
+          <p style="color: #7F7979;">Last comment: ${dayjs(c.createdOn).format('YYYY-MM-DD h:mm A')}</p>
+        </div>
+      </div>
+      <div>
+        <input id=${c.id} class='all_check1' type="checkbox">
+      </div>
+    </div>
+  </div>
+`}).join('')
 
+      const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasksFils.length})`
       document.getElementById('all_todo').innerHTML = all.map(c => {
         const resolved = c.todos.filter(obj => obj.is_resolved === true)
         const not_resolved = c.todos.filter(obj => obj.is_resolved === false)
@@ -642,11 +639,19 @@
         if (c.todos.length > 0) {
           percent = (resolved.length / c.todos.length) * 100
         }
+
+        const dayss = dayjs(c.due_date).diff(new Date(), 'days')
+        let passed
+        if (dayss < 0) {
+          passed = true
+        } else {
+          passed = false
+        }
         return `
         <div class="todo_list task_todo_l">
         <div style="padding: 10px;" class="bottom ">
           <p style="font-weight: 600;">${c.comment}</p>
-          <p style="color: #F76063;">Due 2 days ago</p>
+          <p style=" display: ${c.due_date === null ? 'none' : ''}; font-weight: 500; padding:5px 0px ; color: ${passed ? "F76063" : "37AE6D"}">Due ${Math.abs(dayss)} ${!passed ? 'days time' : 'days ago'}</p>
           <div style="width: 100%; background-color: #EBEBF2; height: 4px; margin: 10px 0px;">
             <div style="width: ${percent}%; background-color: #37AE6D; height: 4px;"></div>
           </div>
@@ -677,13 +682,42 @@
     }
   }
 
+  document.getElementById('comment_search').addEventListener('input', (event) => {
+    event.preventDefault()
+    filterComments = comments_withfile.filter(obj => obj.message.toLowerCase().includes(event.target.value.toLowerCase()));
+    loadComments()
+  })
+  document.getElementById('task_search').addEventListener('input', (event) => {
+    event.preventDefault()
+    ongoing_tasksFils = ongoing_tasks.filter(obj => obj.comment.toLowerCase().includes(event.target.value.toLowerCase()))
+    const all = ongoing_tasksFils.filter(obj => obj.is_resolved === false)
+    document.getElementById('page2_sub3').innerHTML = all.map(c =>
+      `<div 
+          style="display: flex; justify-content: space-between; padding: 15px;" class="bottom">
+          <div onclick="commentOverlay(true), selectTask(${c.figma_id})" style="cursor: pointer; display: flex; gap: 10px;">
+            <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+              <img style="height: 28px; width: 28px;  border-radius: 100%;"
+                src=${extractDefaultAvatar(c.creator_img)} alt="">
+            </div>
+            <div>
+              <h3 style="font-weight: 500;">${c.comment}</h3>
+              <p style="margin:8px 0px; color: #7F7979;">${c.board_name}</p>
+              <p style="color: #7F7979;">Last comment: ${dayjs(c.createdOn).format('YYYY-MM-DD h:mm A')}</p>
+            </div>
+          </div>
+          <div>
+            <input id=${c.id} class='all_check1' type="checkbox">
+          </div>
+          </div>`).join('')
+    const title = document.getElementById('page2_ttt').innerHTML = `Ongoing Tasks (${ongoing_tasksFils.length})`
+  })
+
   // load all comment from figma
   async function loadComments() {
-    let filter = comments_withfile.filter(obj =>
+    let filter = filterComments.filter(obj =>
       !ongoing_tasks.some(obj1 => obj.id === obj1.figma_id)
     );
     filter = filter.filter(c => c.parent_id === "")
-    console.log('filter', filter)
     if (filter.length > 0) {
       document.getElementById('page2_sub2').innerHTML = filter.map(c =>
         `<div 
@@ -713,7 +747,6 @@
 
   // create todo
   async function createTodo(id, taskId) {
-    console.log(id)
     const todoInput = document.getElementById(id)
     if (todoInput.value.length > 3) {
       const res = await fetch(`${backend_url}/create-todo`, {
@@ -732,29 +765,20 @@
       todoInput.value = ''
       fetchTasksTodo()
       await getOngoingTasks(userInfo.id, fileId)
+      selectTask(selectedTask.figma_id)
       // fetchFileTodo()
     }
   }
 
   // fecth todo and change status
   async function fetchTasksTodo() {
-    // const res = await fetch(`${backend_url}/get-todo-task/${selectedTask.id}`, {
-    //  headers: {
-    //   "Content-Type": "application/json",
-    //  },
-    // })
-    // const data = await res.json()
     taskTodo = ongoing_tasks.find(obj => obj.id === selectedTask.id).todos
-    console.log(taskTodo)
-    // document.getElementById('todoLen').innerHTML = `To-do Items (${taskTodo.length})`
-
     document.getElementById('todos').innerHTML = taskTodo.map(obj => `
     <div class="bottom" style="display: flex; padding: 15px 0px; gap: 8px;">
       <div onclick="updateTodo('${obj.id}', 'task')"><input type="checkbox" ${obj.is_resolved ? "checked" : ""}></div>
       <p data-uuid="${obj.id}" class=${obj.is_resolved ? "strike" : ""}>${obj.todo}</p>
     </div>
     `).join("");
-
     const resolved = taskTodo.filter(obj => obj.is_resolved === true)
     const not_resolved = taskTodo.filter(obj => obj.is_resolved === false)
     let percent = 0
@@ -772,7 +796,6 @@
   let checkedTodo
   async function updateTodo(id, where) {
     checkedTodo = id
-    console.log(checkedTodo)
     await changeTodoStatus(checkedTodo)
     const todo = document.querySelector(`[data-uuid="${checkedTodo}"]`).classList;
     await getOngoingTasks(userInfo.id, fileId)
@@ -933,7 +956,6 @@
         checked.push(checks)
       }
     })
-    console.log('see', userInfo)
     async function completeTask() {
       const res = await fetch(`${backend_url}/change-status`, {
         headers: {
@@ -947,7 +969,6 @@
       })
       await getOngoingTasks(userInfo.id, fileId)
       const data = await res.json()
-      console.log(data)
     }
     completeTask()
   }
@@ -959,6 +980,20 @@
     const getParent = global_comments.find(obj => obj.id === `${taskId}`)
     const getChild = global_comments.filter(obj => obj.parent_id === getParent.id)
     comment_parent_id = getParent.id
+    document.getElementById('main_main').innerHTML = `<div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
+          <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
+            <img style="height: 28px; width: 28px;  border-radius: 100%;"
+              src=${extractDefaultAvatar(getParent.user.img_url)} alt="">
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <p style="font-weight: 500;">${getParent.user.handle}</p>
+              <span style="color: #BEBEBE;">${dayjs(getParent.createdOn).format('YYYY-MM-DD h:mm A')}</span>
+            </div>
+            <p style="margin:8px 0px; color: #7F7979; font-weight: 600;">${getParent.message}</p>
+            <!-- <p style="color: #7F7979;">Last comment: 2 mins ago</p> -->
+          </div>
+        </div>`
     document.getElementById('child_comments').innerHTML = getChild.map(obj => `
         <div style=" display: flex; gap: 10px;  margin-top: 15px; padding: 0px 15px;">
           <div style="height: 28px; width: 28px; background-color: #7F7979; border-radius: 100%;">
@@ -975,8 +1010,8 @@
           </div>
         </div>
     `).join('')
-    document.getElementById('comment_no').innerHTML = `Comments (${getChild.length})`
-    document.getElementById('t_comment').innerHTML = `${getChild.length} Comments`
+    document.getElementById('comment_no').innerHTML = `Comments (${getChild.length + 1})`
+    document.getElementById('t_comment').innerHTML = `${getChild.length + 1} Comments`
   }
 
 
@@ -987,19 +1022,46 @@
     comment = ''
   }
 
+  async function changeTaskTitle() {
+    const value = document.getElementById('commentt_input').value
+    const res = await fetch(`${backend_url}/update-comment`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        title: value,
+        task_id: selectedTask.figma_id
+      }),
+    })
+  }
+
+  document.getElementById('commentt_input').addEventListener('keydown', async function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      await changeTaskTitle()
+      getOngoingTasks(userInfo.id, fileId)
+    }
+  })
+
+
   function selectTask(taskId) {
     document.getElementById("show_tag_btn").classList.remove('tags')
     document.getElementById('show_tags').classList.add('tags')
     selectedTask = ongoing_tasks.find(obj => obj.figma_id === `${taskId}`)
     document.getElementById('task_page').innerHTML = selectedTask.board_name
     document.getElementById('task_img').src = extractDefaultAvatar(selectedTask.creator_img)
-    document.getElementById('task_created').innerHTML = dayjs(selectedTask.createdOn).format('YYYY-MM-DD h:mm A')
+    document.getElementById('task_created').innerHTML = `Created ${Math.abs(dayjs(selectedTask.createdOn).diff(new Date(), 'days'))} days ago`
     document.getElementById('task_creator').innerHTML = selectedTask.creator_name
-    document.getElementById('comment').innerHTML = selectedTask.comment
+    // document.getElementById('comment').innerHTML = selectedTask.comment
+    document.getElementById('commentt_input').value = selectedTask.comment
 
     if (selectedTask.due_date !== null) {
       document.getElementById('due_date').innerHTML = dayjs(selectedTask.due_date).format('YYYY-MM-DD')
       document.getElementById('dateInput').classList.add('page')
+    } else {
+      document.getElementById('due_date').innerHTML = 'Add due date'
+      document.getElementById('dateInput').classList.remove('page')
     }
     if (selectedTask.tags.length > 0) {
       showTags(selectedTask.tags)
@@ -1026,7 +1088,8 @@
       }),
     })
     await fetchTasksTodo()
-    selectedTask(selectTask.figma_id)
+    selectTask(selectedTask.figma_id)
+    getOngoingTasks(userInfo.id, fileId)
   }
 
 
@@ -1047,23 +1110,47 @@
 
     if (event.data.pluginMessage.type === "get-user") {
       userInfo = event.data.pluginMessage.data;
-      async function createUser() {
-        const res = await fetch(`${backend_url}/create-user`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            figma_id: userInfo.id,
-            figma_email: userInfo.email,
-            figma_handle: userInfo.handle,
-            figma_image: userInfo.img_url
-          }),
-        })
+      try {
+        async function createUser() {
+          const res1 = await fetch(`${backend_url}/create-user`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+              figma_id: userInfo.id,
+              figma_email: userInfo.email,
+              figma_handle: userInfo.handle,
+              figma_image: userInfo.img_url
+            }),
+          })
+          const data1 = await res1.json()
+          if (data1.err) {
+            throw new Error()
+          }
+        }
+        async function getUserTasks() {
+          const res = await fetch(`${backend_url}/user-task/${userInfo.id}`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+          const data2 = await res.json()
+          if (data2.err) {
+            throw new Error()
+          } else if (data2.data.length > 0) {
+            document.getElementById('namename').innerHTML = `${userInfo.handle}`
+            showNextPage('page2')
+          } else {
+            showNextPage('page2')
+          }
+        }
+        createUser()
+        showNextPage('page2')
+        // getUserTasks()
+      } catch (e) {
+        console.log('Something went wrong!')
       }
-      createUser()
-      showNextPage('page2')
-
     }
 
     if (event.data.pluginMessage.type === "get-files") {
@@ -1074,6 +1161,7 @@
         const match = global_files.find(item2 => item2.id === item1.client_meta?.node_id);
         return { ...item1, board_name: match ? match.name : null };
       });
+      filterComments = comments_withfile
       async function createFile() {
         const res = await fetch(`${backend_url}/create-file`, {
           headers: {
@@ -1090,7 +1178,7 @@
       }
       createFile()
       getOngoingTasks(userInfo.id, fileId)
-      showNextPage('page3')
+      showNextPage('page4')
       //fetchFileTodo()
     }
   };
@@ -1109,6 +1197,132 @@
     const match = url.match(/design\/([a-zA-Z0-9]+)\//);
     return match ? match[1] : null;
   }
+
+  let exportChecked
+  function exportTask() {
+    if (exportChecked === "csv") {
+      downloadCSV(ongoing_tasks)
+    }
+    if (exportChecked === 'PDF') {
+      makePdf(filterJsonData(ongoing_tasksFils, ['figma_id', "board_name", 'comment', 'due_date', 'is_resolved']))
+    }
+  }
+
+
+  function checkOnlyOne(checkbox) {
+    let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(function (item) {
+      if (item !== checkbox) {
+        item.checked = false;
+      }
+      if (item.checked) {
+        exportChecked = item.id
+      }
+    });
+
+  }
+
+
+
+
+  function flattenObject(obj, prefix = "") {
+    return Object.keys(obj).reduce((acc, key) => {
+      const newKey = prefix ? `${prefix}_${key}` : key; // Handle nested keys
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        Object.assign(acc, flattenObject(obj[key], newKey)); // Recursively flatten
+      } else {
+        acc[newKey] = obj[key]; // Assign value
+      }
+      return acc;
+    }, {});
+  }
+
+  function downloadCSV(jsonData, filename = "data.csv") {
+    if (!jsonData || jsonData.length === 0) {
+      console.error("JSON data is empty or invalid");
+      return;
+    }
+
+    // Flatten all objects in the array
+    const flattenedData = jsonData.map(item => flattenObject(item));
+
+    // Extract headers from the flattened data
+    const headers = Object.keys(flattenedData[0]).join(",");
+
+    // Convert JSON to CSV rows
+    const rows = flattenedData.map(obj =>
+      Object.values(obj).map(value => `"${value}"`).join(",") // Handle commas in values
+    );
+
+    // Combine headers and rows
+    const csvContent = [headers, ...rows].join("\n");
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function makePdf(jsonData) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let yPosition = 10;
+    const pageHeight = doc.internal.pageSize.height; // Get the height of the page
+
+    // Helper function to handle nested objects
+    function processObject(obj, prefix = "") {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const value = obj[key];
+          const label = prefix ? `${prefix} > ${key}` : key;
+
+          // If the value is an object, call the function recursively
+          if (typeof value === "object" && value !== null) {
+            processObject(value, label); // Recursively process nested object
+          } else {
+            doc.text(`${label}: ${value}`, 10, yPosition);
+            yPosition += 10; // Move down for the next line
+          }
+        }
+      }
+    }
+
+    // Loop through the JSON array and display data
+    jsonData.forEach((item, index) => {
+      doc.text(`Record #${index + 1}`, 10, yPosition);
+      yPosition += 10;
+
+      // Process each item (object)
+      processObject(item);
+
+      yPosition += 10; // Add space between records
+
+      // Check if the content exceeds the page height
+      if (yPosition > pageHeight - 20) {
+        doc.addPage(); // Add a new page if the content is too long
+        yPosition = 10; // Reset yPosition for the new page
+      }
+    });
+
+    // Save the PDF
+    doc.save("output.pdf");
+  };
+
+
+  function filterJsonData(jsonData, keysToInclude) {
+    return jsonData.map(obj => {
+      return keysToInclude.reduce((acc, key) => {
+        acc[key] = obj[key]; // Keep only selected keys
+        return acc;
+      }, {});
+    });
+  }
+
 </script>
 
 </html>
